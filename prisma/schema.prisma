@@ -1,0 +1,38 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlserver"
+  url      = env("DATABASE_URL")
+}
+
+model Item {
+  id          Int       @id(map: "PK__Item__3213E83F08ABBE67") @default(autoincrement())
+  item        String    @db.NVarChar(255)
+  imgUrl      String?   @db.VarChar(255)
+  description String?   @db.NVarChar(510)
+  ItemTag     ItemTag[]
+}
+
+model ItemTag {
+  id     Int   @id(map: "PK__ItemTag__3213E83F6FCAE958") @default(autoincrement())
+  itemId Int?
+  tagId  Int?
+  value  Int?
+  Item   Item? @relation(fields: [itemId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK__ItemTag__itemId__5EBF139D")
+  Tag    Tag?  @relation(fields: [tagId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK__ItemTag__tagId__5FB337D6")
+}
+
+model Tag {
+  id         Int       @id(map: "PK__Tag__3213E83FB8393F8C") @default(autoincrement())
+  tag        String    @db.NVarChar(255)
+  isVariable Boolean
+  ItemTag    ItemTag[]
+}
+
+model User {
+  id       Int     @id(map: "PK__User__3213E83FCDEEF82E") @default(autoincrement())
+  username String  @unique(map: "UQ__User__F3DBC572D9BCE399") @db.VarChar(255)
+  password String? @db.VarChar(255)
+}
