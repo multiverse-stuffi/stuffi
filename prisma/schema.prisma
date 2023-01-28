@@ -10,7 +10,7 @@ datasource db {
 model Item {
   id          Int       @id(map: "PK__Item__3213E83F08ABBE67") @default(autoincrement())
   item        String    @db.NVarChar(255)
-  imgUrl      String?   @db.VarChar(255)
+  imgUrl      String?   @db.VarChar(510)
   description String?   @db.NVarChar(510)
   userId      Int
   User        User      @relation(fields: [userId], references: [id], onUpdate: NoAction, map: "FK__Item__userId__60A75C0F")
