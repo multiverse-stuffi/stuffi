@@ -20,7 +20,7 @@ export default async function handler(req, res) {
             }
 
             try {
-                const item = await prisma.create({
+                const db_item = await prisma.item.create({
                     data: {
                         item,
                         imgUrl,
@@ -28,8 +28,9 @@ export default async function handler(req, res) {
                         userId: decoded.id
                     }
                 });
-                res.status(200).json(item);
+                res.status(200).json(db_item);
             } catch (e) {
+                console.log(e);
                 res.status(500).send('Server Error');
             }
             

@@ -1,6 +1,5 @@
 const bcrypt = require("bcrypt");
 const jwt = require('jsonwebtoken');
-import { cookieParser } from 'cookie-parser';
 import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
@@ -42,6 +41,7 @@ export default async function handler(req, res) {
                     });
                 } else res.status(400).send('User not found');
             } catch (e) {
+                console.log(e);
                 res.status(500).send('Server Error');
             }
         });

@@ -12,6 +12,8 @@ model Item {
   item        String    @db.NVarChar(255)
   imgUrl      String?   @db.VarChar(255)
   description String?   @db.NVarChar(510)
+  userId      Int
+  User        User      @relation(fields: [userId], references: [id], onUpdate: NoAction, map: "FK__Item__userId__60A75C0F")
   ItemTag     ItemTag[]
 }
 
@@ -27,12 +29,16 @@ model ItemTag {
 model Tag {
   id         Int       @id(map: "PK__Tag__3213E83FB8393F8C") @default(autoincrement())
   tag        String    @db.NVarChar(255)
-  isVariable Boolean
+  isVariable Boolean   @default(false, map: "DF__Tag__isVariable__5BE2A6F2")
+  userId     Int
   ItemTag    ItemTag[]
+  User       User      @relation(fields: [userId], references: [id], onUpdate: NoAction, map: "FK__Tag__userId__619B8048")
 }
 
 model User {
   id       Int     @id(map: "PK__User__3213E83FCDEEF82E") @default(autoincrement())
   username String  @unique(map: "UQ__User__F3DBC572D9BCE399") @db.VarChar(255)
   password String? @db.VarChar(255)
+  Item     Item[]
+  Tag      Tag[]
 }
