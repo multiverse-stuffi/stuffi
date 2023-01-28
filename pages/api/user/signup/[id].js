@@ -7,6 +7,13 @@ export default async function handler(req, res) {
     if (req.method === 'PUT') {
         const oldPassword = req.body.oldPassword ?? '';
         const newPassword = req.body.newPassword ?? '';
+        let queryId = 0;
+
+        if (isNaN(req.query.id)) {
+            res.status(400).send('ID must be a number');
+            return;
+        } else queryId = Number(req.query.id);
+
         if (!newPassword.trim() || !oldPassword.trim()) {
             res.status(400).send('Passwords cannot be blank');
             return;
@@ -22,6 +29,10 @@ export default async function handler(req, res) {
         if (req.cookies.token) jwt.verify(req.cookies.token, process.env.NEXT_PUBLIC_JWT_SECRET, async function(err, decoded) {
             try {
                 const id = decoded.id;
+                if (id !== queryId) {
+                    res.status(403).send('Not Authorized');
+                    return;
+                }
                 const user = await prisma.user.findUnique({where: {id}});
                 if (user) {
                     bcrypt.compare(oldPassword, user.password, async function(err, result) {
