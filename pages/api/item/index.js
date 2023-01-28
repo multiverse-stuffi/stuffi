@@ -36,5 +36,20 @@ export default async function handler(req, res) {
             
         });
         else res.status(403).send('Not Authorized');
+    } else if (req.method === 'GET') {
+        if (req.cookies.token) jwt.verify(req.cookies.token, process.env.NEXT_PUBLIC_JWT_SECRET, async function(err, decoded) {
+            if (!decoded.id) {
+                res.status(403).send('Not Authorized');
+                return;
+            }
+            
+            const items = await prisma.item.findMany({
+                where: {
+                    userId: decoded.id
+                }
+            });
+            res.status(200).json(items);
+        });
+        else res.status(403).send('Not Authorized');
     }
 }
