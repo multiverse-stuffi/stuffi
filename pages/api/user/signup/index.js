@@ -30,7 +30,7 @@ export default async function handler(req, res) {
                     }
                 });
                 delete user.password;
-                const token = await jwt.sign(user, process.env.NEXT_PUBLIC_JWT_SECRET);
+                const token = await jwt.sign(user, process.env.JWT_SECRET);
                 res.status(200).setHeader("Set-Cookie", `token=${token}; Path=/`).send('success');
             });
         } catch (e) {

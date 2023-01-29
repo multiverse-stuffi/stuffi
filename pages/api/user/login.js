@@ -16,7 +16,7 @@ export default async function handler(req, res) {
             bcrypt.compare(password, user.password, async function(err, result) {
                 if (result) {
                     delete user.password;
-                    const token = await jwt.sign(user, process.env.NEXT_PUBLIC_JWT_SECRET);
+                    const token = await jwt.sign(user, process.env.JWT_SECRET);
                     res.status(200).setHeader("Set-Cookie", `token=${token}; Path=/`).send('success');
                 } else res.status(400).send('No user found with this username/password combination');
             });
