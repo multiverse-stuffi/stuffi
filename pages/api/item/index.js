@@ -20,6 +20,29 @@ export default async function handler(req, res) {
                 return;
             }
 
+            if (!imgUrl) {
+                try {
+                    const config = new Configuration({
+                        apiKey: process.env.OPENAI_KEY
+                    });
+                    const openai = new OpenAIApi(config);
+                    const response = await openai.createImage({
+                        prompt: description ?? item,
+                        n: 1,
+                        size: "512x512"
+                    });
+                    imgUrl = response.data.data[0].url;
+                } catch (e) {
+                    if (e.response) {
+                      console.log(e.response.status);
+                      console.log(e.response.data);
+                    } else {
+                      console.log(e.message);
+                    }
+                    imgUrl = null;
+                }
+            }
+            
             try {
                 const db_item = await prisma.item.create({
                     data: {
