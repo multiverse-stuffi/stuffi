@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const { Configuration, OpenAIApi } = require("openai");
+import AWS from 'aws-sdk';
 import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
@@ -31,13 +32,29 @@ export default async function handler(req, res) {
                         n: 1,
                         size: "512x512"
                     });
-                    imgUrl = response.data.data[0].url;
+                    const s3 = new AWS.S3({
+                      accessKeyId: process.env.AWS_ACCESS_KEY,
+                      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+                    });
+
+                    const imgRes = await fetch(response.data.data[0].url);
+                    const arrBuffer = await imgRes.arrayBuffer();
+                    const buffer = Buffer.from(arrBuffer);
+                    const uploadedImg = await s3.upload({
+                        Bucket: process.env.AWS_S3_BUCKET_NAME,
+                        Key: item+Date.now()+'.png',
+                        Body: buffer
+                    }).promise();
+                    console.log(uploadedImg);
+                    imgUrl = uploadedImg.Location;
                 } catch (e) {
                     if (e.response) {
-                      console.log(e.response.status);
-                      console.log(e.response.data);
+                        console.log(e.response.status);
+                        console.log(e.response.data);
+                    } else if (e.message) {
+                        console.log(e.message);
                     } else {
-                      console.log(e.message);
+                        console.log(e);
                     }
                     imgUrl = null;
                 }
