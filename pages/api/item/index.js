@@ -5,11 +5,11 @@ const prisma = new PrismaClient();
 
 export default async function handler(req, res) {
     if (req.method === 'POST') {
-        const item = req.body.item;
-        let imgUrl = req.body.imgUrl;
-        const description = req.body.description;
+        const item = req.body.item ? req.body.item.trim() : null;
+        let imgUrl = req.body.imgUrl ? req.body.imgUrl.trim() : null;
+        const description = req.body.description ? req.body.description.trim() : null;
 
-        if (!item.trim()) {
+        if (!item) {
             res.status(400).send('Name required');
             return;
         }
@@ -27,7 +27,7 @@ export default async function handler(req, res) {
                     });
                     const openai = new OpenAIApi(config);
                     const response = await openai.createImage({
-                        prompt: item,
+                        prompt: description ?? item,
                         n: 1,
                         size: "512x512"
                     });
@@ -57,7 +57,6 @@ export default async function handler(req, res) {
                 console.log(e);
                 res.status(500).send('Server Error');
             }
-            
         });
         else res.status(403).send('Not Authorized');
     } else if (req.method === 'GET') {

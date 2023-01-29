@@ -5,8 +5,8 @@ const prisma = new PrismaClient();
 
 export default async function handler(req, res) {
     if (req.method === 'PUT') {
-        const oldPassword = req.body.oldPassword ?? '';
-        const newPassword = req.body.newPassword ?? '';
+        const oldPassword = req.body.oldPassword ? req.body.oldPassword.trim() : null;
+        const newPassword = req.body.newPassword ? req.body.newPassword.trim() : null;
         let queryId = 0;
 
         if (isNaN(req.query.id)) {
@@ -14,7 +14,7 @@ export default async function handler(req, res) {
             return;
         } else queryId = Number(req.query.id);
 
-        if (!newPassword.trim() || !oldPassword.trim()) {
+        if (!newPassword || !oldPassword) {
             res.status(400).send('Passwords cannot be blank');
             return;
         }

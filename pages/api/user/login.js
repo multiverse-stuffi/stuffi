@@ -5,9 +5,9 @@ const prisma = new PrismaClient();
 
 export default async function handler(req, res) {
     if (req.method === 'POST') {
-        const username = req.body.username ?? '';
-        const password = req.body.password ?? '';
-        if (!username.trim() || !password.trim()) {
+        const username = req.body.username ? req.body.username.trim() :  null;
+        const password = req.body.password ? req.body.password.trim() : null;
+        if (!username || !password) {
             res.status(400).send('Username and password required');
             return;
         }
