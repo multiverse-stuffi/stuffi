@@ -45,7 +45,6 @@ export default async function handler(req, res) {
                         Key: item+Date.now()+'.png',
                         Body: buffer
                     }).promise();
-                    console.log(uploadedImg);
                     imgUrl = uploadedImg.Location;
                 } catch (e) {
                     if (e.response) {
