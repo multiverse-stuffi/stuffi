@@ -19,11 +19,11 @@ model Item {
 
 model ItemTag {
   id     Int   @id(map: "PK__ItemTag__3213E83F6FCAE958") @default(autoincrement())
-  itemId Int?
-  tagId  Int?
+  itemId Int
+  tagId  Int
   value  Int?
-  Item   Item? @relation(fields: [itemId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK__ItemTag__itemId__5EBF139D")
-  Tag    Tag?  @relation(fields: [tagId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK__ItemTag__tagId__5FB337D6")
+  Item   Item @relation(fields: [itemId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK__ItemTag__itemId__5EBF139D")
+  Tag    Tag  @relation(fields: [tagId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK__ItemTag__tagId__5FB337D6")
 }
 
 model Tag {
