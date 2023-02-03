@@ -16,8 +16,8 @@
     "@mui/material": "^5.11.6",
     "@next/font": "13.1.2",
     "@prisma/client": "^4.9.0",
-    "bcrypt": "^5.1.0",
     "antd": "^5.1.6",
+    "bcrypt": "^5.1.0",
     "eslint": "8.32.0",
     "eslint-config-next": "13.1.2",
     "jsonwebtoken": "^9.0.0",
@@ -25,6 +25,7 @@
     "openai": "^3.1.0",
     "prisma": "^4.9.0",
     "react": "18.2.0",
-    "react-dom": "18.2.0"
+    "react-dom": "18.2.0",
+    "react-transition-group": "^4.4.5"
   }
 }
