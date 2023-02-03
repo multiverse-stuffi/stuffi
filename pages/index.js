@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
-import StuffCard from "../components/card";
+import LogButton from "../components/LogButton";
 
 export default function Home() {
-  return <StuffCard />;
+  return <LogButton />;
 }
