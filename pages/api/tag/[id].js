@@ -127,5 +127,5 @@ export default async function handler(req, res) {
             }
         });
         else res.status(403).send('Not Authorized');
-    }
+    } else res.status(400).send('Bad Request');
 }

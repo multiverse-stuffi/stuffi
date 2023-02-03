@@ -21,5 +21,5 @@ export default async function handler(req, res) {
                 } else res.status(400).send('No user found with this username/password combination');
             });
         } else res.status(400).send('No user found with this username/password combination');
-    }
+    } else res.status(400).send('Bad Request');
 }

@@ -36,5 +36,5 @@ export default async function handler(req, res) {
                 res.status(500).send('Server Error');
             }
         });
-    }
+    } else res.status(400).send('Bad Request');
 }
