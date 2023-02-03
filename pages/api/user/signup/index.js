@@ -5,9 +5,9 @@ const prisma = new PrismaClient();
 
 export default async function handler(req, res) {
     if (req.method === 'POST') {
-        const username = req.body.username ?? '';
-        const password = req.body.password ?? '';
-        if (!username.trim() || !password.trim()) {
+        const username = req.body.username ? req.body.username.trim() :  null;
+        const password = req.body.password ? req.body.password.trim() : null;
+        if (!username || !password) {
             res.status(400).send('Username and password required');
             return;
         }
@@ -30,11 +30,12 @@ export default async function handler(req, res) {
                     }
                 });
                 delete user.password;
-                const token = await jwt.sign(user, process.env.NEXT_PUBLIC_JWT_SECRET);
-                res.status(200).setHeader("Set-Cookie", `token=${token}`).send('success');
+                const token = await jwt.sign(user, process.env.JWT_SECRET);
+                res.status(200).setHeader("Set-Cookie", `token=${token}; Path=/`).send('success');
             });
         } catch (e) {
+            console.log(e);
             res.status(500).send('Server Error');
         }
-    }
+    } else res.status(400).send('Bad Request');
 }
