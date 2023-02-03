@@ -84,5 +84,48 @@ export default async function handler(req, res) {
             res.status(200).json(tag);
         });
         else res.status(403).send('Not Authorized');
+    } else if (req.method === 'DELETE') {
+        if (isNaN(req.query.id) || !req.query.id) {
+            res.status(400).send('Invalid ID');
+            return;
+        }
+        const id = Number(req.query.id);
+
+        if (req.cookies.token) jwt.verify(req.cookies.token, process.env.JWT_SECRET, async function(err, decoded) {
+            try {
+                if (!decoded.id) {
+                    res.status(403).send('Not Authorized');
+                    return;
+                }
+    
+                const tag = await prisma.tag.findUnique({
+                    where: {
+                        id
+                    }
+                });
+    
+                if (!tag) {
+                    res.status(400).send('Invalid ID');
+                    return;
+                }
+    
+                if (tag.userId !== decoded.id) {
+                    res.status(403).send('Not Authorized');
+                    return;
+                }
+    
+                await prisma.tag.delete({
+                    where: {
+                        id
+                    }
+                });
+
+                res.status(200).send('success');
+            } catch (e) {
+                console.log(e);
+                res.status(500).send('Server Error');
+            }
+        });
+        else res.status(403).send('Not Authorized');
     }
 }
