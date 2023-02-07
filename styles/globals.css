@@ -1,0 +1,42 @@
+:root {
+    font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+}
+
+:root * {
+    margin: 2px;
+}
+
+button, a.button {
+    background-color: #0A81D1;
+    padding: 10px;
+    border: none;
+    color: white;
+    border-radius: 15%;
+}
+
+button:hover, a.button:hover {
+    background-color: #314CB6;
+}
+
+a[onClick] {
+    cursor: pointer;
+}
+
+.error {
+    color: red;
+}
+
+.modal {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-evenly;
+}
+
+input {
+    padding: 7px;
+}
+
+.hidden {
+    display: none;
+}
