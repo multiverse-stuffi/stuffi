@@ -2,6 +2,8 @@
 import {getCookie, deleteCookie} from 'cookies-next';
 import {useState} from 'react';
 import Modal from 'react-modal';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faXmark } from '@fortawesome/free-solid-svg-icons';
 
 const customStyles = {
   content: {
@@ -23,6 +25,7 @@ export default function logButton() {
     const [modalIsOpen, setIsOpen] = useState(false);
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
     const [errorText, setErrorText] = useState('');
     const [isNew, setIsNew] = useState(false);
 
@@ -36,6 +39,11 @@ export default function logButton() {
 
     function closeModal() {
         setIsOpen(false);
+        setIsNew(false);
+        setUsername('');
+        setPassword('');
+        setConfirmPassword('');
+        setErrorText('');
     }
 
     const clickHandler = () => {
@@ -53,10 +61,12 @@ export default function logButton() {
             setErrorText('Username and valid password required');
             return;
         }
+        if (isNew && password !== confirmPassword) {
+            setErrorText('Passwords do not match');
+            return;
+        }
         await fetch(`/api/user/${isNew ? 'signup' : 'login'}`, {method: 'POST', body: JSON.stringify({username, password})});
         setToken(getCookie('token'));
-        setUsername('');
-        setPassword('');
         closeModal();
     }
 
@@ -68,16 +78,18 @@ export default function logButton() {
             <Modal
             isOpen={modalIsOpen}
             onAfterOpen={afterOpenModal}
-            onRequestClose={closeModal}
+            onRequestClose={function(){}}
             style={customStyles}
             contentLabel="Log In Modal"
             >
+                <FontAwesomeIcon className="clickable" icon={faXmark} onClick={closeModal}/>
                 <form className='modal' onSubmit={logInHandler}>
                     <input value={username} name="username" onChange={(ev)=>{setUsername(ev.target.value); setErrorText('');}} placeholder="Username"></input>
                     <input value={password} name="password" onChange={(ev)=>{setPassword(ev.target.value); setErrorText('');}} placeholder="Password" type="password"></input>
+                    <input className={isNew ? '' : 'hidden'} value={confirmPassword} name="confirmPassword" onChange={(ev)=>{setConfirmPassword(ev.target.value); setErrorText('');}} placeholder="Confirm Password" type="password"></input>
                     <span className={"error" + (!errorText ? ' hidden' : '')}>{errorText}</span>
                     <button>{isNew ? 'Sign up' : 'Log in'}</button>
-                    <a onClick={()=>setIsNew(!isNew)}>{isNew ? 'Already have an account?' : 'New here?'}</a>
+                    <a className="clickable" onClick={()=>setIsNew(!isNew)}>{isNew ? 'Already have an account?' : 'New here?'}</a>
                 </form>
             </Modal>
         </>

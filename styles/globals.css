@@ -12,14 +12,15 @@ button, a.button {
     border: none;
     color: white;
     border-radius: 15%;
+    cursor: pointer;
+}
+
+.clickable {
+    cursor: pointer;
 }
 
 button:hover, a.button:hover {
     background-color: #314CB6;
-}
-
-a[onClick] {
-    cursor: pointer;
 }
 
 .error {
