@@ -69,7 +69,6 @@ export default function logButton() {
             return;
         }
         const res = await fetch(`/api/user/${isNew ? 'signup' : 'login'}`, {method: 'POST', body: JSON.stringify({username, password})});
-        console.log(res);
         setToken(getCookie('token'));
         closeModal();
     }

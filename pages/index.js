@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import StuffCard from "../components/card";
 import Box from '@mui/material/Box';
-import Header from "@/components/header";
+import Header from "../components/header";
 
 function Home({data}) {
   const [items, setItems] = useState(data);
@@ -34,7 +34,6 @@ export async function getServerSideProps(context) {
   };
   const res = await fetch(`http://${process.env.HOST}:${process.env.PORT}/api/item`, {headers: {Cookie: req.headers.cookie}});
   const data = res.ok ? await res.json() : [];
-  console.log(data);
   return {
     props: {
       data
