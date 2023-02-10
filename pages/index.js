@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import LogButton from "../components/LogButton";
 import StuffCard from "../components/card";
 import Box from '@mui/material/Box';
+import Header from "@/components/header";
 
 function Home({data}) {
   const [items, setItems] = useState(data);
@@ -14,7 +14,7 @@ function Home({data}) {
 
   return (
     <>
-      <LogButton />
+      <Header />
       <Box sx={boxStyles}>
         {items.map(item => (
           <StuffCard item={item}/>
@@ -23,6 +23,7 @@ function Home({data}) {
     </>
   );
 }
+
 
 export async function getServerSideProps(context) {
   const { req } = context;
