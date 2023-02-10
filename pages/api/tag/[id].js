@@ -4,6 +4,7 @@ const prisma = new PrismaClient();
 
 export default async function handler(req, res) {
     if (req.method === 'PUT') {
+        req.body = JSON.parse(req.body);
         const tag = req.body.tag ? req.body.tag.trim() : null;
         const isVariable = req.body.isVariable;
         let id = 0;
