@@ -13,7 +13,7 @@ const customStyles = {
     bottom: 'auto',
     marginRight: '-50%', 
     transform: 'translate(-50%, -50%)',
-    padding: '10px'
+    padding: '0 10px 10px'
   },
 };
 
@@ -28,6 +28,7 @@ export default function logButton() {
     const [confirmPassword, setConfirmPassword] = useState('');
     const [errorText, setErrorText] = useState('');
     const [isNew, setIsNew] = useState(false);
+    const [passwordRules, setPasswordRules] = useState({length: false, lowercase: false, uppercase: false, number: false, special: false});
 
     function openModal() {
         setIsOpen(true);
@@ -57,7 +58,7 @@ export default function logButton() {
 
     const logInHandler = async (e) => {
         e.preventDefault();
-        if (!username.trim() || !password.trim() || password.length < 8 || !/[a-z]/.test(password) || !/[A-Z]/.test(password) || !/\d/.test(password)) {
+        if (!username.trim() || !password.trim() || !Object.values(passwordRules).every(i => i)) {
             setErrorText('Username and valid password required');
             return;
         }
@@ -70,6 +71,17 @@ export default function logButton() {
         closeModal();
     }
 
+    const updatePasswordRules = (curPassword) => {
+        curPassword = curPassword.trim();
+        let newRules = {};
+        newRules.length = curPassword.length > 8;
+        newRules.lowercase =  /[a-z]/.test(curPassword);
+        newRules.uppercase =  /[A-Z]/.test(curPassword);
+        newRules.number = /\d/.test(curPassword);
+        newRules.special = !/^[A-Za-z0-9]*$/.test(curPassword);
+        setPasswordRules(newRules);
+    }
+
     return (
         <>
             <a className='button' onClick={clickHandler}>
@@ -78,18 +90,28 @@ export default function logButton() {
             <Modal
             isOpen={modalIsOpen}
             onAfterOpen={afterOpenModal}
-            onRequestClose={function(){}}
             style={customStyles}
             contentLabel="Log In Modal"
             >
-                <FontAwesomeIcon className="clickable" icon={faXmark} onClick={closeModal}/>
                 <form className='modal' onSubmit={logInHandler}>
+                    <div className="right">
+                        <FontAwesomeIcon className="clickable" icon={faXmark} onClick={closeModal} size="lg"/>
+                    </div>
                     <input value={username} name="username" onChange={(ev)=>{setUsername(ev.target.value); setErrorText('');}} placeholder="Username"></input>
-                    <input value={password} name="password" onChange={(ev)=>{setPassword(ev.target.value); setErrorText('');}} placeholder="Password" type="password"></input>
+                    <input value={password} name="password" onChange={(ev)=>{setPassword(ev.target.value); setErrorText(''); updatePasswordRules(ev.target.value);}} placeholder="Password" type="password"></input>
+                    <div style={{display: 'flex', justifyContent: 'flex-start', width: '100%'}}>
+                        <ul className={isNew ? '' : 'hidden'}>
+                            <li className={passwordRules.length ? 'success' : 'error'}>At least 8 characters</li>
+                            <li className={passwordRules.lowercase ? 'success' : 'error'}>Contains a lowercase letter</li>
+                            <li className={passwordRules.uppercase ? 'success' : 'error'}>Contains an uppercase letter</li>
+                            <li className={passwordRules.number ? 'success' : 'error'}>Contains a number</li>
+                            <li className={passwordRules.special ? 'success' : 'error'}>Contains a special character</li>
+                        </ul>
+                    </div>
                     <input className={isNew ? '' : 'hidden'} value={confirmPassword} name="confirmPassword" onChange={(ev)=>{setConfirmPassword(ev.target.value); setErrorText('');}} placeholder="Confirm Password" type="password"></input>
                     <span className={"error" + (!errorText ? ' hidden' : '')}>{errorText}</span>
                     <button>{isNew ? 'Sign up' : 'Log in'}</button>
-                    <a className="clickable" onClick={()=>setIsNew(!isNew)}>{isNew ? 'Already have an account?' : 'New here?'}</a>
+                    <a className="clickable" onClick={()=>{setIsNew(!isNew);}}>{isNew ? 'Already have an account?' : 'New here?'}</a>
                 </form>
             </Modal>
         </>

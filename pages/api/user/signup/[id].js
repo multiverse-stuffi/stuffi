@@ -22,8 +22,8 @@ export default async function handler(req, res) {
             res.status(400).send('New password cannot be the same as the old');
             return;
         }
-        if (newPassword.length < 8 || !/[a-z]/.test(newPassword) || !/[A-Z]/.test(newPassword) || !/\d/.test(newPassword)) {
-            res.status(400).send('New password must be at least 8 characters and contain uppercase, lowercase, and a number');
+        if (newPassword.length < 8 || !/[a-z]/.test(newPassword) || !/[A-Z]/.test(newPassword) || !/\d/.test(newPassword) || /^[A-Za-z0-9]*$/.test(password)) {
+            res.status(400).send('New password must be at least 8 characters and contain uppercase, lowercase, number, and special character');
             return;
         }
         if (req.cookies.token) jwt.verify(req.cookies.token, process.env.JWT_SECRET, async function(err, decoded) {
