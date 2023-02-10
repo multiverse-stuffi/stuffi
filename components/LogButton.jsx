@@ -1,4 +1,3 @@
-'use client';
 import {getCookie, deleteCookie} from 'cookies-next';
 import {useState} from 'react';
 import Modal from 'react-modal';
@@ -38,10 +37,6 @@ export default function logButton() {
 
     function openModal() {
         setIsOpen(true);
-    }
-
-    function afterOpenModal(){
-
     }
 
     function closeModal() {
@@ -97,7 +92,6 @@ export default function logButton() {
             </Button>
             <Modal
             isOpen={modalIsOpen}
-            onAfterOpen={afterOpenModal}
             style={customStyles}
             contentLabel="Log In Modal"
             >

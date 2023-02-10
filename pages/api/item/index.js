@@ -9,6 +9,7 @@ export default async function handler(req, res) {
         const item = req.body.item ? req.body.item.trim() : null;
         let imgUrl = req.body.imgUrl ? req.body.imgUrl.trim() : null;
         const description = req.body.description ? req.body.description.trim() : null;
+        const url = req.body.url ? req.body.url.trim() : null;
 
         if (!item) {
             res.status(400).send('Name required');
@@ -27,6 +28,7 @@ export default async function handler(req, res) {
                         item,
                         imgUrl,
                         description,
+                        url,
                         userId: decoded.id
                     }
                 });
@@ -47,6 +49,13 @@ export default async function handler(req, res) {
             const items = await prisma.item.findMany({
                 where: {
                     userId: decoded.id
+                },
+                include: {
+                    tags: {
+                        include: {
+                            Tag: true
+                        }
+                    }
                 }
             });
             res.status(200).json(items);
