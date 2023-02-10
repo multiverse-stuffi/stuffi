@@ -5,6 +5,7 @@ const prisma = new PrismaClient();
 
 export default async function handler(req, res) {
     if (req.method === 'PUT') {
+        req.body = JSON.parse(req.body);
         const oldPassword = req.body.oldPassword ? req.body.oldPassword.trim() : null;
         const newPassword = req.body.newPassword ? req.body.newPassword.trim() : null;
         let queryId = 0;

@@ -5,6 +5,7 @@ const prisma = new PrismaClient();
 
 export default async function handler(req, res) {
     if (req.method === 'POST') {
+        req.body = JSON.parse(req.body);
         const username = req.body.username ? req.body.username.trim() :  null;
         const password = req.body.password ? req.body.password.trim() : null;
         if (!username || !password) {

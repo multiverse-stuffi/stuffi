@@ -59,3 +59,7 @@ ul {
     align-items: flex-start;
     padding-inline-start: 0;
 }
+
+.hover-underline:hover {
+    text-decoration: underline;
+}

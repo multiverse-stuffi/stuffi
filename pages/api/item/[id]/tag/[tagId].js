@@ -4,6 +4,7 @@ const prisma = new PrismaClient();
 
 export default async function handler(req, res) {
     if (req.method === 'POST') {
+        req.body = JSON.parse(req.body);
         const value = isNaN(req.body.value) ? null : Number(req.body.value);
 
         if (isNaN(req.query.id) || !req.query.id || isNaN(req.query.tagId) || !req.query.tagId) {
@@ -66,6 +67,7 @@ export default async function handler(req, res) {
         });
         else res.status(403).send('Not Authorized');
     } else if (req.method === 'PUT') {
+        req.body = JSON.parse(req.body);
         const value = isNaN(req.body.value) ? null : Number(req.body.value);
 
         if (isNaN(req.query.id) || !req.query.id || isNaN(req.query.tagId) || !req.query.tagId) {

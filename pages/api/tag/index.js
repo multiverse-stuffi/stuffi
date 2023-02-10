@@ -4,6 +4,7 @@ const prisma = new PrismaClient();
 
 export default async function handler(req, res) {
     if (req.method === 'POST') {
+        req.body = JSON.parse(req.body);
         const tag = req.body.tag ? req.body.tag.trim() : null;
         const isVariable = req.body.isVariable;
 
