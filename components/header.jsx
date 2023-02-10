@@ -1,16 +1,32 @@
-import React from 'react'
-import AppBar from '@mui/material/AppBar';
-import Box from '@mui/material/Box';
-import { Typography } from '@mui/material';
+import React from "react";
+import AppBar from "@mui/material/AppBar";
+import Box from "@mui/material/Box";
+import { Typography } from "@mui/material";
+import LogButton from "./LogButton";
+import Image from 'next/image';
 
 function Header() {
   return (
     <Box>
-    <AppBar position = "static">
-  <Typography>Stuffi</Typography>
-    </AppBar>
+      <AppBar
+        position="static"
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          flexDirection: "row",
+          justifyContent: "space-between",
+          background: "#004F2D",
+          padding: "15px 1em"
+        }}
+      >
+        <Box sx = {{display: "flex", alignItems: "center"}}>
+        <Image src="/thumbtack.png" width={50} height={50} alt="logo"/>
+        <Typography variant="h4">Stuffi</Typography>
+        </Box>
+        <LogButton />
+      </AppBar>
     </Box>
-  )
+  );
 }
 
-export default Header
+export default Header;
