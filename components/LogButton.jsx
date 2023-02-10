@@ -92,9 +92,9 @@ export default function logButton() {
 
     return (
         <>
-            <a className='button' onClick={clickHandler}>
+            <Button variant="contained" disableElevation onClick={clickHandler}>
                 {token ? 'Log out' : 'Log in'}
-            </a>
+            </Button>
             <Modal
             isOpen={modalIsOpen}
             onAfterOpen={afterOpenModal}
@@ -105,8 +105,8 @@ export default function logButton() {
                     <div className="right">
                         <FontAwesomeIcon className="clickable" icon={faXmark} onClick={closeModal} size="lg"/>
                     </div>
-                    <TextField label="Username" InputLabelProps={{shrink: false}} value={username} name="username" onChange={(ev)=>{setUsername(ev.target.value); setErrorText('');}}/>
-                    <TextField label="Password" InputLabelProps={{shrink: false}} value={password} name="password" onChange={(ev)=>{setPassword(ev.target.value); setErrorText(''); updatePasswordRules(ev.target.value);}} type="password"/>
+                    <TextField label="Username" value={username} name="username" onChange={(ev)=>{setUsername(ev.target.value); setErrorText('');}}/>
+                    <TextField label="Password" value={password} name="password" onChange={(ev)=>{setPassword(ev.target.value); setErrorText(''); updatePasswordRules(ev.target.value);}} type="password"/>
                     <div style={{display: 'flex', justifyContent: 'flex-start', width: '100%'}}>
                         <ul className={isNew ? '' : 'hidden'}>
                             <li className={passwordRules.length ? 'success' : 'error'}>At least 8 characters</li>
@@ -116,9 +116,9 @@ export default function logButton() {
                             <li className={passwordRules.special ? 'success' : 'error'}>Contains a special character</li>
                         </ul>
                     </div>
-                    {isNew ? <TextField label="Confirm Password" InputLabelProps={{shrink: false}} value={confirmPassword} name="confirmPassword" onChange={(ev)=>{setConfirmPassword(ev.target.value); setErrorText('');}} type="password"/> : ''}
+                    {isNew ? <TextField label="Confirm Password" value={confirmPassword} name="confirmPassword" onChange={(ev)=>{setConfirmPassword(ev.target.value); setErrorText('');}} type="password"/> : ''}
                     <span className={"error" + (!errorText ? ' hidden' : '')}>{errorText}</span>
-                    <Button sx={{margin: '5px 0'}} variant="contained" disableElevation>{isNew ? 'Sign up' : 'Log in'}</Button>
+                    <Button type="submit" sx={{margin: '5px 0'}} variant="contained" disableElevation>{isNew ? 'Sign up' : 'Log in'}</Button>
                     <Typography className="clickable hover-underline" sx={{color: '#a9a9a9', marginTop: '3px'}} onClick={()=>{setIsNew(!isNew);}}>{isNew ? 'Already have an account?' : 'New here?'}</Typography>
                 </form>
             </Modal>
