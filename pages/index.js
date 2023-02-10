@@ -1,7 +1,13 @@
 "use client";
 import React, { useState } from "react";
 import StuffCard from "../components/card";
+import Header from "@/components/header";
 
 export default function Home() {
-  return <StuffCard />;
+  return (
+    <div>
+  <Header/>
+  <StuffCard />
+  </div>
+  );
 }
