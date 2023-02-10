@@ -2,25 +2,12 @@
     font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
 }
 
-:root * {
-    margin: 2px;
-}
-
-button, a.button {
-    background-color: #0A81D1;
-    padding: 10px;
-    border: none;
-    color: white;
-    border-radius: 15%;
-    cursor: pointer;
-}
-
 .clickable {
     cursor: pointer;
 }
 
-button:hover, a.button:hover {
-    background-color: #314CB6;
+button:hover {
+    background-color: #91AEC1;
 }
 
 .error {
@@ -36,6 +23,7 @@ button:hover, a.button:hover {
     flex-direction: column;
     align-items: center;
     justify-content: space-evenly;
+    gap: 5px;
 }
 
 input {
@@ -62,4 +50,12 @@ ul {
 
 .hover-underline:hover {
     text-decoration: underline;
+}
+
+body {
+    margin: 0;
+}
+
+header {
+    margin-bottom: 10px;
 }

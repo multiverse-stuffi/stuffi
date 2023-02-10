@@ -1,11 +1,11 @@
 import {getCookie, deleteCookie} from 'cookies-next';
 import {useState} from 'react';
 import Modal from 'react-modal';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faXmark } from '@fortawesome/free-solid-svg-icons';
 import Typography from '@mui/material/Typography';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
+import IconButton from "@mui/material/IconButton";
+import { Close } from "@mui/icons-material";
 
 
 const customStyles = {
@@ -16,13 +16,23 @@ const customStyles = {
     bottom: "auto",
     marginRight: "-50%",
     transform: "translate(-50%, -50%)",
-    padding: "0 10px",
+    padding: "10px",
   },
 };
 
+const buttonStyles = {
+    width: "min-content",
+    whiteSpace: "nowrap",
+    backgroundColor: "#508CA4",
+    color: '#fff',
+    '&:hover': {
+      backgroundColor: '#91AEC1',
+    }
+  }
+
 Modal.setAppElement("#__next");
 
-export default function logButton() {
+export default function logButton(props) {
   const defaultPasswordRules = {
     length: false,
     lowercase: false,
@@ -60,6 +70,7 @@ export default function logButton() {
     if (token) {
       deleteCookie("token");
       setToken(null);
+      props.refreshData();
     } else {
       openModal();
     }
@@ -86,6 +97,7 @@ export default function logButton() {
     });
     console.log(res);
     setToken(getCookie("token"));
+    props.refreshData();
     closeModal();
   };
 
@@ -106,14 +118,7 @@ export default function logButton() {
         variant="contained"
         disableElevation
         onClick={clickHandler}
-        sx={{
-          width: "min-content",
-          whiteSpace: "nowrap",
-          backgroundColor: "#0A8754",
-          color: '#fff', '&:hover': {
-            backgroundColor: '#0A8754',
-          }
-        }}
+        sx={buttonStyles}
       >
         {token ? "Log out" : "Log in"}
       </Button>
@@ -125,12 +130,9 @@ export default function logButton() {
       >
         <form className="modal" onSubmit={logInHandler}>
           <div className="right">
-            <FontAwesomeIcon
-              className="clickable"
-              icon={faXmark}
-              onClick={closeModal}
-              size="lg"
-            />
+            <IconButton onClick={closeModal}>
+                <Close />
+            </IconButton>
           </div>
           <TextField
             label="Username"
@@ -196,7 +198,7 @@ export default function logButton() {
           </span>
           <Button
             type="submit"
-            sx={{ margin: "5px 0" }}
+            sx={buttonStyles}
             variant="contained"
             disableElevation
           >

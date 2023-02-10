@@ -5,7 +5,7 @@ import { Typography } from "@mui/material";
 import LogButton from "./LogButton";
 import Image from 'next/image';
 
-function Header() {
+function Header(props) {
   return (
     <Box>
       <AppBar
@@ -23,7 +23,7 @@ function Header() {
         <Image src="/thumbtack.png" width={50} height={50} alt="logo"/>
         <Typography variant="h4">Stuffi</Typography>
         </Box>
-        <LogButton />
+        <LogButton refreshData={props.refreshData}/>
       </AppBar>
     </Box>
   );
