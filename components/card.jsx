@@ -9,8 +9,24 @@ import CardActions from "@mui/material/CardActions";
 import Typography from "@mui/material/Typography";
 import IconButton from "@mui/material/IconButton";
 import Card from "@mui/material/Card";
+import { Grid } from "@mui/material";
 
-export default function StuffCard() {
+export default function StuffCard(image, tags) {
+  const testTags = [
+    "car",
+    "red",
+    "fast",
+    "racing",
+    "speed",
+    "Disney",
+    "cartoon",
+    "animation",
+  ];
+  const tagColors = [
+    { tag: "#efbdeb", text: "#000" },
+    { tag: "#b68cb8", text: "#fff" },
+    { tag: "#6461a0", text: "#fff" },
+  ];
   return (
     <Card sx={{ maxWidth: 345 }}>
       <CardMedia
@@ -40,6 +56,36 @@ export default function StuffCard() {
             </Box>
           </div>
         </Stack>
+        <div className="tags">
+          <Box>
+            <Grid
+              sx={{ display: "flex", flexDirection: "row", flexWrap: "wrap" }}
+            >
+              {testTags.slice(0, 5).map((tag) => {
+                const tagStyle =
+                  tagColors[Math.floor(Math.random() * tagColors.length)];
+                return (
+                  <Typography
+                    sx={{
+                      backgroundColor: tagStyle.tag,
+                      color: tagStyle.text,
+                      padding: ".25rem .5rem",
+                      marginRight: ".5rem",
+                      marginBottom: ".5rem",
+                      borderRadius: ".25rem",
+                    }}
+                    key={tag}
+                    variant="body2"
+                  >
+                    {" "}
+                    #{tag}
+                  </Typography>
+                );
+              })}
+              {testTags.length > 5 ? <Typography sx = {{color: "#A9A9A9"}}>{testTags.length - 5} more...</Typography> : ""}
+            </Grid>
+          </Box>
+        </div>
       </CardContent>
       <CardActions disableSpacing></CardActions>
     </Card>
