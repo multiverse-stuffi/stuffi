@@ -4,8 +4,10 @@ const prisma = new PrismaClient();
 
 export default async function handler(req, res) {
     if (req.method === 'POST') {
+        req.body = JSON.parse(req.body);
         const tag = req.body.tag ? req.body.tag.trim() : null;
         const isVariable = req.body.isVariable;
+        const color = req.body.color ? req.body.color.trim() : null;
 
         if (!tag) {
             res.status(400).send('Name required');
@@ -23,6 +25,7 @@ export default async function handler(req, res) {
                     data: {
                         tag,
                         isVariable,
+                        color,
                         userId: decoded.id
                     }
                 });

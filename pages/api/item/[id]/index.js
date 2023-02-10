@@ -4,9 +4,11 @@ const prisma = new PrismaClient();
 
 export default async function handler(req, res) {
     if (req.method === 'PUT') {
+        req.body = JSON.parse(req.body);
         const item = req.body.item ? req.body.item.trim() : null;
         let imgUrl = req.body.imgUrl ? req.body.imgUrl.trim() : null;
         const description = req.body.description ? req.body.description.trim() : null;
+        const url = req.body.url ? req.body.url.trim() : null;
         let id = 0;
 
         if (isNaN(req.query.id)) {
@@ -39,7 +41,8 @@ export default async function handler(req, res) {
                     data: {
                         item,
                         imgUrl,
-                        description
+                        description,
+                        url
                     },
                     where: {
                         id

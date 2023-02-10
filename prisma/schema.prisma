@@ -12,9 +12,10 @@ model Item {
   item        String    @db.NVarChar(255)
   imgUrl      String?   @db.VarChar(510)
   description String?   @db.NVarChar(510)
+  url         String?   @db.VarChar(510)
   userId      Int
   User        User      @relation(fields: [userId], references: [id], onUpdate: NoAction, map: "FK__Item__userId__60A75C0F")
-  ItemTag     ItemTag[]
+  tags        ItemTag[]
 }
 
 model ItemTag {
@@ -30,6 +31,7 @@ model Tag {
   id         Int       @id(map: "PK__Tag__3213E83FB8393F8C") @default(autoincrement())
   tag        String    @db.NVarChar(255)
   isVariable Boolean   @default(false, map: "DF__Tag__isVariable__5BE2A6F2")
+  color      String?   @db.Char(6)
   userId     Int
   ItemTag    ItemTag[]
   User       User      @relation(fields: [userId], references: [id], onUpdate: NoAction, map: "FK__Tag__userId__619B8048")

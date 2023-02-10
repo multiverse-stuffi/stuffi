@@ -4,8 +4,10 @@ const prisma = new PrismaClient();
 
 export default async function handler(req, res) {
     if (req.method === 'PUT') {
+        req.body = JSON.parse(req.body);
         const tag = req.body.tag ? req.body.tag.trim() : null;
         const isVariable = req.body.isVariable;
+        const color = req.body.color ? req.body.color.trim() : null;
         let id = 0;
 
         if (isNaN(req.query.id)) {
@@ -37,7 +39,8 @@ export default async function handler(req, res) {
                 const updated = await prisma.tag.update({
                     data: {
                         tag,
-                        isVariable
+                        isVariable,
+                        color
                     },
                     where: {
                         id
