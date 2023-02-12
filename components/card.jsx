@@ -13,9 +13,9 @@ import { Grid } from "@mui/material";
 
 function getContrastingColor(backgroundColor) {
   // convert hex color code to RGB values
-  let r = parseInt(backgroundColor.substring(0,2), 16);
-  let g = parseInt(backgroundColor.substring(2,4), 16);
-  let b = parseInt(backgroundColor.substring(4,6), 16);
+  let r = parseInt(backgroundColor.substring(0, 2), 16);
+  let g = parseInt(backgroundColor.substring(2, 4), 16);
+  let b = parseInt(backgroundColor.substring(4, 6), 16);
 
   // apply the luminosity contrast formula
   let luminosity = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
@@ -28,12 +28,19 @@ export default function StuffCard(props) {
     { tag: "#bfd7ea", text: "#000" },
     { tag: "#91aec1", text: "#000" },
     { tag: "#508ca4", text: "#fff" },
-    { tag: "#0a8754", text: "#fff"},
-    { tag: "#004f2d", text: "#fff"}
+    { tag: "#0a8754", text: "#fff" },
+    { tag: "#004f2d", text: "#fff" }
   ];
 
   return (
-    <Card sx={{ width: 350 }}>
+    <Card sx={{
+      width: 350,
+      cursor: 'pointer',
+      '&:hover': {
+        boxShadow: '0 0 15px #91AEC1',
+        transform: 'scale(1.0125)'
+      }
+    }}>
       <CardActions sx={{ display: 'flex', justifyContent: 'flex-end', padding: '0' }}>
         <Box sx={{ display: 'flex', flexWrap: 'nowrap' }}>
           {item.url ?
@@ -67,8 +74,8 @@ export default function StuffCard(props) {
             >
               {item.tags.slice(0, 5).map((tag) => {
                 const tagStyle =
-                  tag.Tag.color ? {tag: '#'+tag.Tag.color, text: getContrastingColor(tag.Tag.color)}
-                  : tagColors[Math.floor(Math.random() * tagColors.length)];
+                  tag.Tag.color ? { tag: '#' + tag.Tag.color, text: getContrastingColor(tag.Tag.color) }
+                    : tagColors[Math.floor(Math.random() * tagColors.length)];
                 return (
                   <Typography
                     sx={{
@@ -83,7 +90,7 @@ export default function StuffCard(props) {
                     variant="body2"
                   >
                     {" "}
-                    {tag.Tag.isVariable ? tag.value+' ' : ''}{tag.Tag.tag}
+                    {tag.Tag.isVariable ? tag.value + ' ' : ''}{tag.Tag.tag}
                   </Typography>
                 );
               })}

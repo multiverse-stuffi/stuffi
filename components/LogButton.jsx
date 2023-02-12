@@ -1,4 +1,4 @@
-import {getCookie, deleteCookie} from 'cookies-next';
+import {deleteCookie} from 'cookies-next';
 import {useState} from 'react';
 import Modal from 'react-modal';
 import Typography from '@mui/material/Typography';
@@ -32,7 +32,7 @@ const buttonStyles = {
 
 Modal.setAppElement("#__next");
 
-export default function logButton(props) {
+function logButton({refreshData, isLoggedIn, setIsLoggedIn}) {
   const defaultPasswordRules = {
     length: false,
     lowercase: false,
@@ -41,7 +41,6 @@ export default function logButton(props) {
     special: false,
   };
 
-  const [token, setToken] = useState(getCookie("token"));
   const [modalIsOpen, setIsOpen] = useState(false);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -54,8 +53,6 @@ export default function logButton(props) {
     setIsOpen(true);
   }
 
-  function afterOpenModal() {}
-
   function closeModal() {
     setIsOpen(false);
     setIsNew(false);
@@ -67,10 +64,10 @@ export default function logButton(props) {
   }
 
   const clickHandler = () => {
-    if (token) {
+    if (isLoggedIn) {
       deleteCookie("token");
-      setToken(null);
-      props.refreshData();
+      setIsLoggedIn(false);
+      refreshData();
     } else {
       openModal();
     }
@@ -95,10 +92,11 @@ export default function logButton(props) {
       method: "POST",
       body: JSON.stringify({ username, password }),
     });
-    console.log(res);
-    setToken(getCookie("token"));
-    props.refreshData();
-    closeModal();
+    if (res.ok) {
+        setIsLoggedIn(true);
+        refreshData();
+        closeModal();
+    }
   };
 
   const updatePasswordRules = (curPassword) => {
@@ -120,11 +118,10 @@ export default function logButton(props) {
         onClick={clickHandler}
         sx={buttonStyles}
       >
-        {token ? "Log out" : "Log in"}
+        {isLoggedIn ? "Log out" : "Log in"}
       </Button>
       <Modal
         isOpen={modalIsOpen}
-        onAfterOpen={afterOpenModal}
         style={customStyles}
         contentLabel="Log In Modal"
       >
@@ -218,3 +215,5 @@ export default function logButton(props) {
     </>
   );
 }
+
+export default logButton;

@@ -56,6 +56,11 @@ export default async function handler(req, res) {
                             Tag: true
                         }
                     }
+                },
+                orderBy: {
+                    tags: {
+                        _count: 'desc'
+                    }
                 }
             });
             res.status(200).json(items);
