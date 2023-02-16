@@ -65,19 +65,28 @@ function Filters({ getContrastingColor, tags, filterMode, setFilterMode, setFilt
                 <Box
                     sx={{
                         display: "flex",
+                        justifyContent: 'space-between',
                         alignItems: "center",
                         cursor: "pointer",
                         borderBottom: filtersExpanded ? '1px solid #91AEC1' : 'none',
                         bgcolor: '#BFD7EA',
                         padding: '5px'
                     }}
-                    onClick={filterToggle}
                 >
-                    <ExpandCircleDownOutlined sx={{ transform: filtersExpanded ? "none" : "rotate(-90deg)" }} />
-                    <Typography variant="h6" sx={{ ml: 1 }}>
-                        Filter
-                    </Typography>
-                    <Button>Clear</Button>
+                    <Box
+                        sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            width: '100%'
+                        }}
+                        onClick={filterToggle}
+                    >
+                        <ExpandCircleDownOutlined sx={{ transform: filtersExpanded ? "none" : "rotate(-90deg)" }} />
+                        <Typography variant="h6" sx={{ ml: 1 }}>
+                            Filter
+                        </Typography>
+                    </Box>
+                    <Button sx={{ padding: '0' }} onClick={()=>{setFilters([]);}}>Clear</Button>
                 </Box>
                 {filtersExpanded && (
                     <Box sx={{ display: 'flex' }}>
