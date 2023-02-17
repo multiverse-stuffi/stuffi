@@ -57,14 +57,15 @@ function EditModal({ editModal, setEditModal, tagColors, tags, getContrastingCol
     setItemTags(editModal ? editModal.tags : []);
   }, [editModal])
   const refs = useRef({});
-  const createTagRefs = () => {
+  function createTagRefs() {
+    const newRefs = {...refs.current}; 
     for (const tag of tags) {
-      refs.current[tag.id] = {};
-      refs.current[tag.id].check = refs.current[tag.id].check ?? createRef();
-      if (tag.isVariable) {
-        refs.current[tag.id].val = refs.current[tag.id].val ?? createRef();
-      }
+      newRefs[tag.id] = {
+        check: newRefs[tag.id]?.check ?? createRef(),
+        val: tag.isVariable ? newRefs[tag.id]?.val ?? createRef() : undefined
+      };
     }
+    refs.current = newRefs; 
   }
   createTagRefs();
   useEffect(createTagRefs, [itemTags]);
@@ -88,7 +89,7 @@ function EditModal({ editModal, setEditModal, tagColors, tags, getContrastingCol
     for (let i = 0; i < newTags.length; i++) { // Loop through our copy
       if (newTags[i].tagId !== tagId) continue; // Skip it if it is not the tag we just modified
       if (refs.current[tagId].check.current.checked) {
-        Tag = tags.filter(tag => tag.tagId === tagId)[0].Tag;
+        Tag = tags.filter(tag => tag.tagId === tagId)[0];
         newTags[i] = { // If we get here, that means we found the tag we just changed. If the box is checked, let's update it to reflect the current values we entered (checkbox, number field)
           tagId,
           value: refs.current[tagId].val ? refs.current[tagId].val.current.value : null,
@@ -100,7 +101,7 @@ function EditModal({ editModal, setEditModal, tagColors, tags, getContrastingCol
       break; // We already found the one and only item we wanted, so we can stop looping
     }
     if (!done && refs.current[tagId].check.current.checked) { // If we didn't finish what we wanted to do, and the box is checked, add it to the array
-      if (!Tag) Tag = tags.filter(tag => tag.tagId === tagId)[0].Tag;
+      if (!Tag) Tag = tags.filter(tag => tag.tagId === tagId)[0];
       newTags.push({
         tagId,
         value: refs.current[tagId].val ? refs.current[tagId].val.current.value : null,
