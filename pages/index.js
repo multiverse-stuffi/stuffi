@@ -4,6 +4,7 @@ import Box from '@mui/material/Box';
 import Header from "../components/header";
 import Filters from "../components/filters";
 import { getCookies, getCookie } from 'cookies-next';
+import EditModal from "@/components/EditModal";
 const jwt = require('jsonwebtoken');
 
 function Home({ data, url, token, user }) {
@@ -17,6 +18,7 @@ function Home({ data, url, token, user }) {
   const [sortedItems, setSortedItems] = useState(filteredItems);
   const [sort, setSort] = useState(0);
   const [sortMode, setSortMode] = useState('desc');
+  const [editModal, setEditModal] = useState(false)
   const boxStyles = {
     display: 'flex',
     flexWrap: 'wrap',
@@ -124,9 +126,10 @@ function Home({ data, url, token, user }) {
     <>
       <Header username={username} setUsername={setUsername} userId={user.id} refreshData={refreshData} isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />
       {isLoggedIn && <Filters sort={sort} setSort={setSort} sortMode={sortMode} setSortMode={setSortMode} tagColors={tagColors} tags={tags} getContrastingColor={getContrastingColor} filters={filters} setFilters={setFilters} filterMode={filterMode} setFilterMode={setFilterMode} />}
+      <EditModal editModal={editModal} setEditModal={setEditModal}/>
       <Box sx={boxStyles}>
         {sortedItems.map(item => (
-          <StuffCard tagColors={tagColors} getContrastingColor={getContrastingColor} key={item.id} item={item} />
+          <StuffCard tagColors={tagColors} getContrastingColor={getContrastingColor} key={item.id} item={item} setEditModal={setEditModal} />
         ))}
       </Box>
     </>

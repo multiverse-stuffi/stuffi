@@ -1,6 +1,6 @@
-import { deleteCookie } from 'cookies-next';
-import { useState } from 'react';
-import Modal from 'react-modal';
+import { deleteCookie } from "cookies-next";
+import { useState } from "react";
+import Modal from "react-modal";
 import { Close } from "@mui/icons-material";
 import {
   Typography,
@@ -9,9 +9,8 @@ import {
   IconButton,
   List,
   ListItem,
-  ListItemText
-} from '@mui/material';
-
+  ListItemText,
+} from "@mui/material";
 
 const customStyles = {
   content: {
@@ -29,15 +28,20 @@ const buttonStyles = {
   width: "min-content",
   whiteSpace: "nowrap",
   backgroundColor: "#508CA4",
-  color: '#fff',
-  '&:hover': {
-    backgroundColor: '#91AEC1',
-  }
-}
+  color: "#fff",
+  "&:hover": {
+    backgroundColor: "#91AEC1",
+  },
+};
 
 Modal.setAppElement("#__next");
 
-function logButton({ refreshData, isLoggedIn, setIsLoggedIn, setHeaderUsername }) {
+function logButton({
+  refreshData,
+  isLoggedIn,
+  setIsLoggedIn,
+  setHeaderUsername,
+}) {
   const defaultPasswordRules = {
     length: false,
     lowercase: false,
@@ -103,7 +107,7 @@ function logButton({ refreshData, isLoggedIn, setIsLoggedIn, setHeaderUsername }
       setIsLoggedIn(true);
       refreshData();
       closeModal();
-    } else setErrorText('Incorrect username/password');
+    } else setErrorText("Incorrect username/password");
   };
 
   const updatePasswordRules = (curPassword) => {
@@ -159,20 +163,35 @@ function logButton({ refreshData, isLoggedIn, setIsLoggedIn, setHeaderUsername }
             }}
             type="password"
           />
-          <List className={isNew ? '' : 'hidden'}>
-            <ListItem className={passwordRules.length ? "success" : "error"} sx={{ p: 0 }}>
+          <List className={isNew ? "" : "hidden"}>
+            <ListItem
+              className={passwordRules.length ? "success" : "error"}
+              sx={{ p: 0 }}
+            >
               <ListItemText primary="At least 8 characters" />
             </ListItem>
-            <ListItem className={passwordRules.lowercase ? "success" : "error"} sx={{ p: 0 }}>
+            <ListItem
+              className={passwordRules.lowercase ? "success" : "error"}
+              sx={{ p: 0 }}
+            >
               <ListItemText primary="Contains a lowercase letter" />
             </ListItem>
-            <ListItem className={passwordRules.uppercase ? "success" : "error"} sx={{ p: 0 }}>
+            <ListItem
+              className={passwordRules.uppercase ? "success" : "error"}
+              sx={{ p: 0 }}
+            >
               <ListItemText primary="Contains an uppercase letter" />
             </ListItem>
-            <ListItem className={passwordRules.number ? "success" : "error"} sx={{ p: 0 }}>
+            <ListItem
+              className={passwordRules.number ? "success" : "error"}
+              sx={{ p: 0 }}
+            >
               <ListItemText primary="Contains a number" />
             </ListItem>
-            <ListItem className={passwordRules.special ? "success" : "error"} sx={{ p: 0 }}>
+            <ListItem
+              className={passwordRules.special ? "success" : "error"}
+              sx={{ p: 0 }}
+            >
               <ListItemText primary="Contains a special character" />
             </ListItem>
           </List>
