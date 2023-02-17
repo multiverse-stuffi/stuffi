@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import StuffCard from "../components/card";
-import Box from '@mui/material/Box';
+import { Box } from '@mui/material';
 import Header from "../components/header";
 import Filters from "../components/filters";
 import { getCookies, getCookie } from 'cookies-next';
@@ -123,8 +123,8 @@ function Home({ data, url, token, user }) {
   }, [filteredItems, sort, sortMode])
   return (
     <>
-      <Header username={username} setUsername={setUsername} userId={user.id} refreshData={refreshData} isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />
-      {isLoggedIn && <Filters sort={sort} setSort={setSort} sortMode={sortMode} setSortMode={setSortMode} tagColors={tagColors} tags={tags} getContrastingColor={getContrastingColor} filters={filters} setFilters={setFilters} filterMode={filterMode} setFilterMode={setFilterMode} />}
+      <Header username={username} setUsername={setUsername} userId={user.id} refreshData={refreshData} setEditModal={setEditModal} isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />
+      {isLoggedIn && <Filters setEditModal={setEditModal} sort={sort} setSort={setSort} sortMode={sortMode} setSortMode={setSortMode} tagColors={tagColors} tags={tags} getContrastingColor={getContrastingColor} filters={filters} setFilters={setFilters} filterMode={filterMode} setFilterMode={setFilterMode} />}
       <EditModal tags={tags} tagColors={tagColors} editModal={editModal} setEditModal={setEditModal} getContrastingColor={getContrastingColor}/>
       <Box sx={boxStyles}>
         {sortedItems.map(item => (

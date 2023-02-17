@@ -45,7 +45,7 @@ function EditModal({ editModal, setEditModal, tagColors, tags, getContrastingCol
   );
   const [url, setUrl] = useState(editModal ? editModal.url : '');
   const [imgUrl, setImgUrl] = useState(editModal ? editModal.imgUrl : '');
-  const [isNew, setIsNew] = useState(editModal ? !editModal.item : null);
+  const [isNew, setIsNew] = useState(editModal ? !editModal.id : null);
   const [showPreview, setShowPreview] = useState(editModal && editModal.imgUrl ? true : false);
   const [itemTags, setItemTags] = useState(editModal ? editModal.tags : []);
   useEffect(() => {
@@ -55,6 +55,7 @@ function EditModal({ editModal, setEditModal, tagColors, tags, getContrastingCol
     setImgUrl(editModal ? editModal.imgUrl : '');
     setShowPreview(editModal && editModal.imgUrl ? true : false);
     setItemTags(editModal ? editModal.tags : []);
+    setIsNew(editModal ? !editModal.id : null)
   }, [editModal])
   const refs = useRef({});
   function createTagRefs() {
@@ -119,7 +120,7 @@ function EditModal({ editModal, setEditModal, tagColors, tags, getContrastingCol
     >
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: '10px' }}>
         <Typography>
-          Editing: {editModal ? editModal.item ?? "New Item" : null}
+          Editing: {editModal ? (editModal.item ? editModal.item : "New Item") : null}
         </Typography>
         <IconButton onClick={closeModal}>
           <Close />

@@ -1,5 +1,5 @@
 import { useState, useRef, createRef, useEffect } from "react";
-import { ExpandCircleDownOutlined } from "@mui/icons-material";
+import { ExpandCircleDownOutlined, AddBoxOutlined } from "@mui/icons-material";
 import {
     Typography,
     Checkbox,
@@ -15,10 +15,11 @@ import {
     Select,
     MenuItem,
     TextField,
-    Button
+    Button,
+    IconButton
 } from "@mui/material";
 
-function Filters({ getContrastingColor, tags, filterMode, setFilterMode, setFilters, filters, tagColors, sort, setSort, sortMode, setSortMode }) {
+function Filters({ getContrastingColor, tags, filterMode, setFilterMode, setFilters, filters, tagColors, sort, setSort, sortMode, setSortMode, setEditModal }) {
     const [filtersExpanded, setFiltersExpanded] = useState(false);
     const [sortExpanded, setSortExpanded] = useState(false);
     const refs = useRef({});
@@ -61,7 +62,7 @@ function Filters({ getContrastingColor, tags, filterMode, setFilterMode, setFilt
             done = true; // Keep track that we finished what we wanted to do
             break; // We already found the one and only item we wanted, so we can stop looping
         }
-        if (!done && refs.current[tagId].check.current.checked) { // If we didn't finish what we wanted to do, and the box is checked, add it to the array
+        if (!done && refs.current[tagId].check.current.checked) { // If we didn't finish what we wanted to do, and the box is checked, BoxOutlined it to the array
             newFilters.push({ id: tagId, value: refs.current[tagId].val ? refs.current[tagId].val.current.value : null, compType: refs.current[tagId].comp ? refs.current[tagId].comp.current.value : null });
         }
         setFilters(newFilters); // Update state with new array
@@ -76,8 +77,13 @@ function Filters({ getContrastingColor, tags, filterMode, setFilterMode, setFilt
     };
 
     return (
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 0 }}>
-            <Box sx={{ display: "flex", flexDirection: "column", border: '1px solid #91AEC1', margin: '10px 0 25px 25px', borderRadius: '8px', overflow: 'hidden', width: '75%', height: 'fit-content' }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', margin: '25px', gap: '20px' }}>
+            <Box sx={{height: 'fit-content', mt: '2px'}}>
+                <IconButton onClick={() => {setEditModal({item: '', description: '', url: '', imgUrl: '', tags: []})}}>
+                    <AddBoxOutlined/>
+                </IconButton>
+            </Box>
+            <Box sx={{ display: "flex", flexDirection: "column", border: '1px solid #91AEC1', borderRadius: '8px', overflow: 'hidden', width: '75%', height: 'fit-content' }}>
                 <Box
                     sx={{
                         display: "flex",
@@ -187,7 +193,7 @@ function Filters({ getContrastingColor, tags, filterMode, setFilterMode, setFilt
                     </Box>
                 </Box>
             </Box>
-            <Box sx={{ display: "flex", flexDirection: "column", border: '1px solid #91AEC1', margin: '10px 25px 25px', borderRadius: '8px', overflow: 'hidden', width: '25%', height: 'fit-content' }}>
+            <Box sx={{ display: "flex", flexDirection: "column", border: '1px solid #91AEC1', borderRadius: '8px', overflow: 'hidden', width: '25%', height: 'fit-content' }}>
                 <Box
                     sx={{
                         display: "flex",
