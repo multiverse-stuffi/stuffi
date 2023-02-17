@@ -1,11 +1,16 @@
-import {deleteCookie} from 'cookies-next';
-import {useState} from 'react';
+import { deleteCookie } from 'cookies-next';
+import { useState } from 'react';
 import Modal from 'react-modal';
-import Typography from '@mui/material/Typography';
-import TextField from '@mui/material/TextField';
-import Button from '@mui/material/Button';
-import IconButton from "@mui/material/IconButton";
 import { Close } from "@mui/icons-material";
+import {
+  Typography,
+  TextField,
+  Button,
+  IconButton,
+  List,
+  ListItem,
+  ListItemText
+} from '@mui/material';
 
 
 const customStyles = {
@@ -21,18 +26,18 @@ const customStyles = {
 };
 
 const buttonStyles = {
-    width: "min-content",
-    whiteSpace: "nowrap",
-    backgroundColor: "#508CA4",
-    color: '#fff',
-    '&:hover': {
-      backgroundColor: '#91AEC1',
-    }
+  width: "min-content",
+  whiteSpace: "nowrap",
+  backgroundColor: "#508CA4",
+  color: '#fff',
+  '&:hover': {
+    backgroundColor: '#91AEC1',
   }
+}
 
 Modal.setAppElement("#__next");
 
-function logButton({refreshData, isLoggedIn, setIsLoggedIn, setHeaderUsername}) {
+function logButton({ refreshData, isLoggedIn, setIsLoggedIn, setHeaderUsername }) {
   const defaultPasswordRules = {
     length: false,
     lowercase: false,
@@ -93,11 +98,11 @@ function logButton({refreshData, isLoggedIn, setIsLoggedIn, setHeaderUsername}) 
       body: JSON.stringify({ username, password }),
     });
     if (res.ok) {
-        const user = await res.json();
-        setHeaderUsername(user.username);
-        setIsLoggedIn(true);
-        refreshData();
-        closeModal();
+      const user = await res.json();
+      setHeaderUsername(user.username);
+      setIsLoggedIn(true);
+      refreshData();
+      closeModal();
     } else setErrorText('Incorrect username/password');
   };
 
@@ -130,7 +135,7 @@ function logButton({refreshData, isLoggedIn, setIsLoggedIn, setHeaderUsername}) 
         <form className="modal" onSubmit={logInHandler}>
           <div className="right">
             <IconButton onClick={closeModal}>
-                <Close />
+              <Close />
             </IconButton>
           </div>
           <TextField
@@ -153,31 +158,23 @@ function logButton({refreshData, isLoggedIn, setIsLoggedIn, setHeaderUsername}) 
             }}
             type="password"
           />
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "flex-start",
-              width: "100%",
-            }}
-          >
-            <ul className={isNew ? "" : "hidden"}>
-              <li className={passwordRules.length ? "success" : "error"}>
-                At least 8 characters
-              </li>
-              <li className={passwordRules.lowercase ? "success" : "error"}>
-                Contains a lowercase letter
-              </li>
-              <li className={passwordRules.uppercase ? "success" : "error"}>
-                Contains an uppercase letter
-              </li>
-              <li className={passwordRules.number ? "success" : "error"}>
-                Contains a number
-              </li>
-              <li className={passwordRules.special ? "success" : "error"}>
-                Contains a special character
-              </li>
-            </ul>
-          </div>
+          <List className={isNew ? '' : 'hidden'}>
+            <ListItem className={passwordRules.length ? "success" : "error"} sx={{ p: 0 }}>
+              <ListItemText primary="At least 8 characters" />
+            </ListItem>
+            <ListItem className={passwordRules.lowercase ? "success" : "error"} sx={{ p: 0 }}>
+              <ListItemText primary="Contains a lowercase letter" />
+            </ListItem>
+            <ListItem className={passwordRules.uppercase ? "success" : "error"} sx={{ p: 0 }}>
+              <ListItemText primary="Contains an uppercase letter" />
+            </ListItem>
+            <ListItem className={passwordRules.number ? "success" : "error"} sx={{ p: 0 }}>
+              <ListItemText primary="Contains a number" />
+            </ListItem>
+            <ListItem className={passwordRules.special ? "success" : "error"} sx={{ p: 0 }}>
+              <ListItemText primary="Contains a special character" />
+            </ListItem>
+          </List>
           {isNew ? (
             <TextField
               label="Confirm Password"

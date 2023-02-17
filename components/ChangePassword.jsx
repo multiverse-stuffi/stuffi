@@ -1,11 +1,14 @@
-import { deleteCookie } from 'cookies-next';
 import { useState } from 'react';
 import Modal from 'react-modal';
-import Typography from '@mui/material/Typography';
-import TextField from '@mui/material/TextField';
-import Button from '@mui/material/Button';
-import IconButton from "@mui/material/IconButton";
 import { Close } from "@mui/icons-material";
+import {
+    TextField,
+    Button,
+    IconButton,
+    List,
+    ListItem,
+    ListItemText
+} from '@mui/material';
 
 
 const customStyles = {
@@ -107,7 +110,7 @@ function logButton({ userId }) {
             <Button
                 disableElevation
                 onClick={clickHandler}
-                sx={{color: 'white'}}
+                sx={{ color: 'white' }}
             >
                 Change Password
             </Button>
@@ -143,31 +146,23 @@ function logButton({ userId }) {
                         }}
                         type="password"
                     />
-                    <div
-                        style={{
-                            display: "flex",
-                            justifyContent: "flex-start",
-                            width: "100%",
-                        }}
-                    >
-                        <ul>
-                            <li className={passwordRules.length ? "success" : "error"}>
-                                At least 8 characters
-                            </li>
-                            <li className={passwordRules.lowercase ? "success" : "error"}>
-                                Contains a lowercase letter
-                            </li>
-                            <li className={passwordRules.uppercase ? "success" : "error"}>
-                                Contains an uppercase letter
-                            </li>
-                            <li className={passwordRules.number ? "success" : "error"}>
-                                Contains a number
-                            </li>
-                            <li className={passwordRules.special ? "success" : "error"}>
-                                Contains a special character
-                            </li>
-                        </ul>
-                    </div>
+                    <List>
+                        <ListItem className={passwordRules.length ? "success" : "error"} sx={{p: 0}}>
+                            <ListItemText primary="At least 8 characters"/>
+                        </ListItem>
+                        <ListItem className={passwordRules.lowercase ? "success" : "error"} sx={{p: 0}}>
+                            <ListItemText primary="Contains a lowercase letter"/>
+                        </ListItem>
+                        <ListItem className={passwordRules.uppercase ? "success" : "error"} sx={{p: 0}}>
+                            <ListItemText primary="Contains an uppercase letter"/>
+                        </ListItem>
+                        <ListItem className={passwordRules.number ? "success" : "error"} sx={{p: 0}}>
+                            <ListItemText primary="Contains a number"/>
+                        </ListItem>
+                        <ListItem className={passwordRules.special ? "success" : "error"} sx={{p: 0}}>
+                            <ListItemText primary="Contains a special character"/>
+                        </ListItem>
+                    </List>
                     <TextField
                         label="Confirm Password"
                         value={confirmPassword}
