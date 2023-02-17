@@ -1,7 +1,6 @@
 const bcrypt = require("bcrypt");
 const jwt = require('jsonwebtoken');
-import { PrismaClient } from '@prisma/client';
-const prisma = new PrismaClient();
+import prisma from '../../../lib/prisma';
 
 export default async function handler(req, res) {
     if (req.method === 'POST') {
@@ -18,7 +17,7 @@ export default async function handler(req, res) {
                 if (result) {
                     delete user.password;
                     const token = await jwt.sign(user, process.env.JWT_SECRET);
-                    res.status(200).setHeader("Set-Cookie", `token=${token}; Path=/`).send('success');
+                    res.status(200).setHeader("Set-Cookie", `token=${token}; Path=/`).json(user);
                 } else res.status(400).send('No user found with this username/password combination');
             });
         } else res.status(400).send('No user found with this username/password combination');

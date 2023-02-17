@@ -1,7 +1,7 @@
 const jwt = require('jsonwebtoken');
 const { Configuration, OpenAIApi } = require("openai");
-import { PrismaClient } from '@prisma/client';
-const prisma = new PrismaClient();
+import AWS from 'aws-sdk';
+import prisma from '../../../lib/prisma';
 
 export default async function handler(req, res) {
     if (req.method === 'POST') {
@@ -22,6 +22,44 @@ export default async function handler(req, res) {
                 return;
             }
 
+            if (!imgUrl) {
+                try {
+                    const config = new Configuration({
+                        apiKey: process.env.OPENAI_KEY
+                    });
+                    const openai = new OpenAIApi(config);
+                    const response = await openai.createImage({
+                        prompt: description ?? item,
+                        n: 1,
+                        size: "512x512"
+                    });
+                    const s3 = new AWS.S3({
+                      accessKeyId: process.env.AWS_ACCESS_KEY,
+                      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+                    });
+
+                    const imgRes = await fetch(response.data.data[0].url);
+                    const arrBuffer = await imgRes.arrayBuffer();
+                    const buffer = Buffer.from(arrBuffer);
+                    const uploadedImg = await s3.upload({
+                        Bucket: process.env.AWS_S3_BUCKET_NAME,
+                        Key: item+Date.now()+'.png',
+                        Body: buffer
+                    }).promise();
+                    imgUrl = uploadedImg.Location;
+                } catch (e) {
+                    if (e.response) {
+                        console.log(e.response.status);
+                        console.log(e.response.data);
+                    } else if (e.message) {
+                        console.log(e.message);
+                    } else {
+                        console.log(e);
+                    }
+                    imgUrl = null;
+                }
+            }
+            
             try {
                 const db_item = await prisma.item.create({
                     data: {
@@ -55,6 +93,11 @@ export default async function handler(req, res) {
                         include: {
                             Tag: true
                         }
+                    }
+                },
+                orderBy: {
+                    tags: {
+                        _count: 'desc'
                     }
                 }
             });

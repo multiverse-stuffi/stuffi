@@ -1,11 +1,16 @@
-import {getCookie, deleteCookie} from 'cookies-next';
-import {useState} from 'react';
+import { deleteCookie } from 'cookies-next';
+import { useState } from 'react';
 import Modal from 'react-modal';
-import Typography from '@mui/material/Typography';
-import TextField from '@mui/material/TextField';
-import Button from '@mui/material/Button';
-import IconButton from "@mui/material/IconButton";
 import { Close } from "@mui/icons-material";
+import {
+  Typography,
+  TextField,
+  Button,
+  IconButton,
+  List,
+  ListItem,
+  ListItemText
+} from '@mui/material';
 
 
 const customStyles = {
@@ -21,18 +26,18 @@ const customStyles = {
 };
 
 const buttonStyles = {
-    width: "min-content",
-    whiteSpace: "nowrap",
-    backgroundColor: "#508CA4",
-    color: '#fff',
-    '&:hover': {
-      backgroundColor: '#91AEC1',
-    }
+  width: "min-content",
+  whiteSpace: "nowrap",
+  backgroundColor: "#508CA4",
+  color: '#fff',
+  '&:hover': {
+    backgroundColor: '#91AEC1',
   }
+}
 
 Modal.setAppElement("#__next");
 
-export default function logButton(props) {
+function logButton({ refreshData, isLoggedIn, setIsLoggedIn, setHeaderUsername }) {
   const defaultPasswordRules = {
     length: false,
     lowercase: false,
@@ -41,8 +46,7 @@ export default function logButton(props) {
     special: false,
   };
 
-  const [token, setToken] = useState(getCookie("token"));
-  const [modalIsOpen, setIsOpen] = useState(false);
+  const [modalIsOpen, setIsOpen] = useState(!isLoggedIn);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -53,8 +57,6 @@ export default function logButton(props) {
   function openModal() {
     setIsOpen(true);
   }
-
-  function afterOpenModal() {}
 
   function closeModal() {
     setIsOpen(false);
@@ -67,10 +69,10 @@ export default function logButton(props) {
   }
 
   const clickHandler = () => {
-    if (token) {
+    if (isLoggedIn) {
       deleteCookie("token");
-      setToken(null);
-      props.refreshData();
+      setIsLoggedIn(false);
+      refreshData();
     } else {
       openModal();
     }
@@ -95,10 +97,13 @@ export default function logButton(props) {
       method: "POST",
       body: JSON.stringify({ username, password }),
     });
-    console.log(res);
-    setToken(getCookie("token"));
-    props.refreshData();
-    closeModal();
+    if (res.ok) {
+      const user = await res.json();
+      setHeaderUsername(user.username);
+      setIsLoggedIn(true);
+      refreshData();
+      closeModal();
+    } else setErrorText('Incorrect username/password');
   };
 
   const updatePasswordRules = (curPassword) => {
@@ -120,18 +125,18 @@ export default function logButton(props) {
         onClick={clickHandler}
         sx={buttonStyles}
       >
-        {token ? "Log out" : "Log in"}
+        {isLoggedIn ? "Log out" : "Log in"}
       </Button>
       <Modal
         isOpen={modalIsOpen}
-        onAfterOpen={afterOpenModal}
         style={customStyles}
         contentLabel="Log In Modal"
+        onRequestClose={closeModal}
       >
         <form className="modal" onSubmit={logInHandler}>
           <div className="right">
             <IconButton onClick={closeModal}>
-                <Close />
+              <Close />
             </IconButton>
           </div>
           <TextField
@@ -154,31 +159,23 @@ export default function logButton(props) {
             }}
             type="password"
           />
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "flex-start",
-              width: "100%",
-            }}
-          >
-            <ul className={isNew ? "" : "hidden"}>
-              <li className={passwordRules.length ? "success" : "error"}>
-                At least 8 characters
-              </li>
-              <li className={passwordRules.lowercase ? "success" : "error"}>
-                Contains a lowercase letter
-              </li>
-              <li className={passwordRules.uppercase ? "success" : "error"}>
-                Contains an uppercase letter
-              </li>
-              <li className={passwordRules.number ? "success" : "error"}>
-                Contains a number
-              </li>
-              <li className={passwordRules.special ? "success" : "error"}>
-                Contains a special character
-              </li>
-            </ul>
-          </div>
+          <List className={isNew ? '' : 'hidden'}>
+            <ListItem className={passwordRules.length ? "success" : "error"} sx={{ p: 0 }}>
+              <ListItemText primary="At least 8 characters" />
+            </ListItem>
+            <ListItem className={passwordRules.lowercase ? "success" : "error"} sx={{ p: 0 }}>
+              <ListItemText primary="Contains a lowercase letter" />
+            </ListItem>
+            <ListItem className={passwordRules.uppercase ? "success" : "error"} sx={{ p: 0 }}>
+              <ListItemText primary="Contains an uppercase letter" />
+            </ListItem>
+            <ListItem className={passwordRules.number ? "success" : "error"} sx={{ p: 0 }}>
+              <ListItemText primary="Contains a number" />
+            </ListItem>
+            <ListItem className={passwordRules.special ? "success" : "error"} sx={{ p: 0 }}>
+              <ListItemText primary="Contains a special character" />
+            </ListItem>
+          </List>
           {isNew ? (
             <TextField
               label="Confirm Password"
@@ -218,3 +215,5 @@ export default function logButton(props) {
     </>
   );
 }
+
+export default logButton;
