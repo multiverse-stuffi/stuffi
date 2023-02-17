@@ -98,7 +98,7 @@ function logButton({refreshData, isLoggedIn, setIsLoggedIn, setHeaderUsername}) 
         setIsLoggedIn(true);
         refreshData();
         closeModal();
-    }
+    } else setErrorText('Incorrect username/password');
   };
 
   const updatePasswordRules = (curPassword) => {
