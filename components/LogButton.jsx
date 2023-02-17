@@ -131,6 +131,7 @@ function logButton({ refreshData, isLoggedIn, setIsLoggedIn, setHeaderUsername }
         isOpen={modalIsOpen}
         style={customStyles}
         contentLabel="Log In Modal"
+        onRequestClose={closeModal}
       >
         <form className="modal" onSubmit={logInHandler}>
           <div className="right">
