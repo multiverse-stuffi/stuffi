@@ -6,13 +6,17 @@ import Filters from "../components/filters";
 import { getCookies, getCookie } from 'cookies-next';
 const jwt = require('jsonwebtoken');
 
-function Home({ data, url, token, username }) {
+function Home({ data, url, token }) {
   const [items, setItems] = useState(data.items);
   const [filteredItems, setFilteredItems] = useState(items);
   const [isLoggedIn, setIsLoggedIn] = useState(!!token);
   const [filters, setFilters] = useState([]);
   const [filterMode, setFilterMode] = useState('or');
   const [tags, setTags] = useState(data.tags);
+  const [username, setUsername] = useState(data.username);
+  const [sortedItems, setSortedItems] = useState(filteredItems);
+  const [sort, setSort] = useState(0);
+  const [sortMode, setSortMode] = useState('desc');
   const boxStyles = {
     display: 'flex',
     flexWrap: 'wrap',
@@ -96,12 +100,32 @@ function Home({ data, url, token, username }) {
   useEffect(() => {
     setTagColors(generateTagColors());
   }, [tags]);
+  useEffect(() => {
+    console.log(sort, sortMode);
+    const sorted = [...filteredItems];
+    if (sort === 0) {
+      if (sortMode === 'desc') setSortedItems(sorted);
+      else if (sortMode === 'asc') setSortedItems(sorted.reverse());
+    } else {
+      sorted.sort((a, b) => {
+        const tagA = a.tags.filter(i => i.tagId == sort)[0];
+        const tagB = b.tags.filter(i => i.tagId == sort)[0];
+        if (typeof tagA === 'undefined' && typeof tagB === 'undefined') return 0;
+        if (typeof tagA === 'undefined') return (sortMode === 'desc' ? 1 : -1);
+        if (typeof tagB === 'undefined') return (sortMode === 'desc' ? -1 : 1);
+        const valA = tagA.value;
+        const valB = tagB.value;
+        return (valB - valA) * (sortMode === 'desc' ? 1 : -1);
+      });
+      setSortedItems(sorted);
+    }
+  }, [filteredItems, sort, sortMode])
   return (
     <>
-      <Header username={username} refreshData={refreshData} isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />
-      {isLoggedIn && <Filters tagColors={tagColors} tags={tags} getContrastingColor={getContrastingColor} filters={filters} setFilters={setFilters} filterMode={filterMode} setFilterMode={setFilterMode} />}
+      <Header username={username} setUsername={setUsername} refreshData={refreshData} isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />
+      {isLoggedIn && <Filters sort={sort} setSort={setSort} sortMode={sortMode} setSortMode={setSortMode} tagColors={tagColors} tags={tags} getContrastingColor={getContrastingColor} filters={filters} setFilters={setFilters} filterMode={filterMode} setFilterMode={setFilterMode} />}
       <Box sx={boxStyles}>
-        {filteredItems.map(item => (
+        {sortedItems.map(item => (
           <StuffCard tagColors={tagColors} getContrastingColor={getContrastingColor} key={item.id} item={item} />
         ))}
       </Box>
@@ -126,10 +150,9 @@ export async function getServerSideProps(context) {
   let username = null;
   if (!req.cookies.token) return {
     props: {
-      data: {items: [], tags: []},
+      data: {items: [], tags: [], username},
       url,
-      token: null,
-      username
+      token: null
     }
   };
   const itemsRes = await fetch(`http://${url}/api/item`, { headers: { Cookie: req.headers.cookie } });
@@ -138,14 +161,13 @@ export async function getServerSideProps(context) {
   const tagsRes = await fetch(`http://${url}/api/tag`, { headers: { Cookie: req.headers.cookie } });
   data.tags = tagsRes.ok ? await tagsRes.json() : [];
   jwt.verify(req.cookies.token, process.env.JWT_SECRET, function (err, decoded) {
-    username = decoded.username;
+    data.username = decoded.username;
   });
   return {
     props: {
       data,
       url,
-      token: req.cookies.token,
-      username
+      token: req.cookies.token
     }
   };
 }

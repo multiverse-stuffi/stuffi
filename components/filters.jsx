@@ -18,7 +18,7 @@ import {
     Button
 } from "@mui/material";
 
-function Filters({ getContrastingColor, tags, filterMode, setFilterMode, setFilters, filters, tagColors }) {
+function Filters({ getContrastingColor, tags, filterMode, setFilterMode, setFilters, filters, tagColors, sort, setSort, sortMode, setSortMode }) {
     const [filtersExpanded, setFiltersExpanded] = useState(false);
     const [sortExpanded, setSortExpanded] = useState(false);
     const refs = useRef({});
@@ -59,6 +59,14 @@ function Filters({ getContrastingColor, tags, filterMode, setFilterMode, setFilt
         setFilters(newFilters);
     };
 
+    const handleSortMode = (e) => {
+        setSortMode(e.target.value);
+    };
+
+    const handleSort = (e) => {
+        setSort(e.target.value);
+    };
+
     return (
         <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 0 }}>
             <Box sx={{ display: "flex", flexDirection: "column", border: '1px solid #91AEC1', margin: '10px 0 25px 25px', borderRadius: '8px', overflow: 'hidden', width: '75%', height: 'fit-content' }}>
@@ -86,92 +94,90 @@ function Filters({ getContrastingColor, tags, filterMode, setFilterMode, setFilt
                             Filter
                         </Typography>
                     </Box>
-                    <Button sx={{ padding: '0' }} onClick={()=>{setFilters([]);}}>Clear</Button>
+                    <Button sx={{ padding: '0' }} onClick={() => { setFilters([]); }}>Clear</Button>
                 </Box>
-                {filtersExpanded && (
-                    <Box sx={{ display: 'flex' }}>
-                        <Box sx={{ width: '80%' }}>
-                            <List sx={{ py: 1, display: 'flex', flexDirection: 'row' }}>
-                                {tags.map((tag) => {
-                                    const tagStyle =
-                                        tag.color ? { tag: '#' + tag.color, text: getContrastingColor(tag.color) }
-                                            : tagColors[tag.id];
-                                    return (
-                                        <ListItem key={tag.tag} disablePadding>
-                                            <Checkbox
-                                                checked={filters.some(i => i.id == tag.id)}
-                                                onChange={() => { handleFilter(tag.id) }}
-                                                value={tag.id}
-                                                inputProps={{ ref: refs.current[tag.id].check }}
+                <Box sx={{ display: filtersExpanded ? 'flex' : 'none' }}>
+                    <Box sx={{ width: '80%' }}>
+                        <List sx={{ py: 1, display: 'flex', flexDirection: 'row' }}>
+                            {tags.map((tag) => {
+                                const tagStyle =
+                                    tag.color ? { tag: '#' + tag.color, text: getContrastingColor(tag.color) }
+                                        : (tagColors[tag.id] ?? { tag: '#fff', text: '#000' });
+                                return (
+                                    <ListItem key={tag.tag} disablePadding>
+                                        <Checkbox
+                                            checked={filters.some(i => i.id == tag.id)}
+                                            onChange={() => { handleFilter(tag.id) }}
+                                            value={tag.id}
+                                            inputProps={{ ref: refs.current[tag.id].check }}
+                                        />
+                                        <Box sx={{ display: "inline-flex" }}>
+                                            <ListItemText
+                                                primary={tag.tag}
+                                                sx={{
+                                                    bgcolor: tagStyle.tag,
+                                                    color: tagStyle.text,
+                                                    py: "2px",
+                                                    px: "8px",
+                                                    borderRadius: "4px",
+                                                }}
                                             />
-                                            <Box sx={{ display: "inline-flex" }}>
-                                                <ListItemText
-                                                    primary={tag.tag}
+                                        </Box>
+                                        {tag.isVariable && (
+                                            <>
+                                                <Select
+                                                    defaultValue={'=='}
+                                                    size="small"
+                                                    sx={{ ml: '5px' }}
+                                                    inputProps={{ ref: refs.current[tag.id].comp }}
+                                                    onChange={() => { if (refs.current[tag.id].check.current.checked) setTimeout(handleFilter, 1, tag.id) }}
+                                                >
+                                                    <MenuItem value=">">&gt;</MenuItem>
+                                                    <MenuItem value=">=">&gt;=</MenuItem>
+                                                    <MenuItem value="==">=</MenuItem>
+                                                    <MenuItem value="<=">&lt;=</MenuItem>
+                                                    <MenuItem value="<">&lt;</MenuItem>
+                                                </Select>
+                                                <TextField
+                                                    type="number"
+                                                    size="small"
                                                     sx={{
-                                                        bgcolor: tagStyle.tag,
-                                                        color: tagStyle.text,
-                                                        py: "2px",
-                                                        px: "8px",
-                                                        borderRadius: "4px",
+                                                        width: '55px',
+                                                        "input::-webkit-outer-spin-button, input::-webkit-inner-spin-button": {
+                                                            WebkitAppearance: "none",
+                                                            margin: 0,
+                                                        },
+                                                        "input[type=number]": {
+                                                            MozAppearance: "textfield",
+                                                        },
                                                     }}
+                                                    inputProps={{
+                                                        ref: refs.current[tag.id].val
+                                                    }}
+                                                    onChange={() => { if (refs.current[tag.id].check.current.checked) handleFilter(tag.id); }}
+                                                    defaultValue={''}
                                                 />
-                                            </Box>
-                                            {tag.isVariable && (
-                                                <>
-                                                    <Select
-                                                        defaultValue={'=='}
-                                                        size="small"
-                                                        sx={{ ml: '5px' }}
-                                                        inputProps={{ ref: refs.current[tag.id].comp }}
-                                                        onChange={() => { if (refs.current[tag.id].check.current.checked) setTimeout(handleFilter, 1, tag.id) }}
-                                                    >
-                                                        <MenuItem value=">">&gt;</MenuItem>
-                                                        <MenuItem value=">=">&gt;=</MenuItem>
-                                                        <MenuItem value="==">=</MenuItem>
-                                                        <MenuItem value="<=">&lt;=</MenuItem>
-                                                        <MenuItem value="<">&lt;</MenuItem>
-                                                    </Select>
-                                                    <TextField
-                                                        type="number"
-                                                        size="small"
-                                                        sx={{
-                                                            width: '55px',
-                                                            "input::-webkit-outer-spin-button, input::-webkit-inner-spin-button": {
-                                                                WebkitAppearance: "none",
-                                                                margin: 0,
-                                                            },
-                                                            "input[type=number]": {
-                                                                MozAppearance: "textfield",
-                                                            },
-                                                        }}
-                                                        inputProps={{
-                                                            ref: refs.current[tag.id].val
-                                                        }}
-                                                        onChange={() => { if (refs.current[tag.id].check.current.checked) handleFilter(tag.id); }}
-                                                        defaultValue={''}
-                                                    />
-                                                </>
-                                            )}
-                                        </ListItem>
-                                    );
-                                })}
-                            </List>
-                        </Box>
-                        <Box sx={{ width: '20%', display: 'flex', justifyContent: 'flex-end' }}>
-                            <FormControl>
-                                <FormLabel sx={{ display: 'inline' }}>Mode</FormLabel>
-                                <RadioGroup
-                                    value={filterMode}
-                                    row={true}
-                                    onChange={handleFilterMode}
-                                >
-                                    <FormControlLabel value="or" control={<Radio />} label="or" />
-                                    <FormControlLabel value="and" control={<Radio />} label="and" />
-                                </RadioGroup>
-                            </FormControl>
-                        </Box>
+                                            </>
+                                        )}
+                                    </ListItem>
+                                );
+                            })}
+                        </List>
                     </Box>
-                )}
+                    <Box sx={{ width: '20%', display: 'flex', justifyContent: 'flex-end' }}>
+                        <FormControl>
+                            <FormLabel sx={{ display: 'inline' }}>Mode</FormLabel>
+                            <RadioGroup
+                                value={filterMode}
+                                row={true}
+                                onChange={handleFilterMode}
+                            >
+                                <FormControlLabel value="or" control={<Radio />} label="or" />
+                                <FormControlLabel value="and" control={<Radio />} label="and" />
+                            </RadioGroup>
+                        </FormControl>
+                    </Box>
+                </Box>
             </Box>
             <Box sx={{ display: "flex", flexDirection: "column", border: '1px solid #91AEC1', margin: '10px 25px 25px', borderRadius: '8px', overflow: 'hidden', width: '25%', height: 'fit-content' }}>
                 <Box
@@ -190,9 +196,32 @@ function Filters({ getContrastingColor, tags, filterMode, setFilterMode, setFilt
                         Sort
                     </Typography>
                 </Box>
-                {sortExpanded && (
-                    'Hello'
-                )}
+                <Box sx={{ display: sortExpanded ? 'flex' : 'none', justifyContent: 'space-between', pt: '5px' }}>
+                    <FormControl sx={{ml: '20px'}}>
+                        <FormLabel sx={{ display: 'inline' }}>Sort by</FormLabel>
+                        <Select
+                            defaultValue={0}
+                            size="small"
+                            sx={{ height: 'min-content' }}
+                            onChange={handleSort}
+                        >
+                            <MenuItem value={0}>Tag count</MenuItem>
+                            {tags.filter(tag => tag.isVariable).map(tag => (
+                                <MenuItem value={tag.id} key={tag.id}>{tag.tag}</MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
+                    <FormControl>
+                        <FormLabel sx={{ display: 'inline' }}>Mode</FormLabel>
+                        <RadioGroup
+                            value={sortMode}
+                            onChange={handleSortMode}
+                        >
+                            <FormControlLabel value="asc" control={<Radio />} label="Ascending" />
+                            <FormControlLabel value="desc" control={<Radio />} label="Descending" />
+                        </RadioGroup>
+                    </FormControl>
+                </Box>
             </Box>
         </Box>
     );

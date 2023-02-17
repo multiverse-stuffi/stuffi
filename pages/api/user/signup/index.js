@@ -32,7 +32,7 @@ export default async function handler(req, res) {
                 });
                 delete user.password;
                 const token = await jwt.sign(user, process.env.JWT_SECRET);
-                res.status(200).setHeader("Set-Cookie", `token=${token}; Path=/`).send('success');
+                res.status(200).setHeader("Set-Cookie", `token=${token}; Path=/`).json(user);
             });
         } catch (e) {
             console.log(e);

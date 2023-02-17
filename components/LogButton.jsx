@@ -32,7 +32,7 @@ const buttonStyles = {
 
 Modal.setAppElement("#__next");
 
-function logButton({refreshData, isLoggedIn, setIsLoggedIn}) {
+function logButton({refreshData, isLoggedIn, setIsLoggedIn, setHeaderUsername}) {
   const defaultPasswordRules = {
     length: false,
     lowercase: false,
@@ -93,6 +93,8 @@ function logButton({refreshData, isLoggedIn, setIsLoggedIn}) {
       body: JSON.stringify({ username, password }),
     });
     if (res.ok) {
+        const user = await res.json();
+        setHeaderUsername(user.username);
         setIsLoggedIn(true);
         refreshData();
         closeModal();

@@ -6,7 +6,7 @@ import LogButton from "./LogButton";
 import Image from 'next/image';
 import Head from './head';
 
-function Header({username, refreshData, isLoggedIn, setIsLoggedIn}) {
+function Header({username, setUsername, refreshData, isLoggedIn, setIsLoggedIn}) {
   return (
     <>
       <Head />
@@ -26,8 +26,8 @@ function Header({username, refreshData, isLoggedIn, setIsLoggedIn}) {
           <Image src="/thumbtack.png" width={50} height={50} alt="logo"/>
           <Typography variant="h4">Stuffi</Typography>
           </Box>
-          {isLoggedIn ? <Typography variant="h5">Welcome, {username}!</Typography> : ''}
-          <LogButton refreshData={refreshData} isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn}/>
+          {isLoggedIn && <Typography variant="h5">Welcome, {username}!</Typography>}
+          <LogButton setHeaderUsername={setUsername} refreshData={refreshData} isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn}/>
         </AppBar>
     </Box>
     </>
