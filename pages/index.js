@@ -6,14 +6,14 @@ import Filters from "../components/filters";
 import { getCookies, getCookie } from 'cookies-next';
 const jwt = require('jsonwebtoken');
 
-function Home({ data, url, token }) {
+function Home({ data, url, token, user }) {
   const [items, setItems] = useState(data.items);
   const [filteredItems, setFilteredItems] = useState(items);
   const [isLoggedIn, setIsLoggedIn] = useState(!!token);
   const [filters, setFilters] = useState([]);
   const [filterMode, setFilterMode] = useState('or');
   const [tags, setTags] = useState(data.tags);
-  const [username, setUsername] = useState(data.username);
+  const [username, setUsername] = useState(user.username);
   const [sortedItems, setSortedItems] = useState(filteredItems);
   const [sort, setSort] = useState(0);
   const [sortMode, setSortMode] = useState('desc');
@@ -122,7 +122,7 @@ function Home({ data, url, token }) {
   }, [filteredItems, sort, sortMode])
   return (
     <>
-      <Header username={username} setUsername={setUsername} refreshData={refreshData} isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />
+      <Header username={username} setUsername={setUsername} userId={user.id} refreshData={refreshData} isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />
       {isLoggedIn && <Filters sort={sort} setSort={setSort} sortMode={sortMode} setSortMode={setSortMode} tagColors={tagColors} tags={tags} getContrastingColor={getContrastingColor} filters={filters} setFilters={setFilters} filterMode={filterMode} setFilterMode={setFilterMode} />}
       <Box sx={boxStyles}>
         {sortedItems.map(item => (
@@ -147,12 +147,13 @@ function getContrastingColor(backgroundColor) {
 export async function getServerSideProps(context) {
   const { req } = context;
   const url = `${process.env.HOST}${process.env.PORT ? ':' + process.env.PORT : ''}`;
-  let username = null;
+  let user = {username: null, id: null};
   if (!req.cookies.token) return {
     props: {
-      data: {items: [], tags: [], username},
+      data: {items: [], tags: []},
       url,
-      token: null
+      token: null,
+      user
     }
   };
   const itemsRes = await fetch(`http://${url}/api/item`, { headers: { Cookie: req.headers.cookie } });
@@ -161,13 +162,15 @@ export async function getServerSideProps(context) {
   const tagsRes = await fetch(`http://${url}/api/tag`, { headers: { Cookie: req.headers.cookie } });
   data.tags = tagsRes.ok ? await tagsRes.json() : [];
   jwt.verify(req.cookies.token, process.env.JWT_SECRET, function (err, decoded) {
-    data.username = decoded.username;
+    user = decoded;
+    delete user.iat;
   });
   return {
     props: {
       data,
       url,
-      token: req.cookies.token
+      token: req.cookies.token,
+      user
     }
   };
 }

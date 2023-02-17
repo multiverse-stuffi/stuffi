@@ -5,8 +5,9 @@ import { Typography } from "@mui/material";
 import LogButton from "./LogButton";
 import Image from 'next/image';
 import Head from './head';
+import ChangePassword from './ChangePassword';
 
-function Header({username, setUsername, refreshData, isLoggedIn, setIsLoggedIn}) {
+function Header({username, setUsername, userId, refreshData, isLoggedIn, setIsLoggedIn}) {
   return (
     <>
       <Head />
@@ -27,7 +28,10 @@ function Header({username, setUsername, refreshData, isLoggedIn, setIsLoggedIn})
           <Typography variant="h4">Stuffi</Typography>
           </Box>
           {isLoggedIn && <Typography variant="h5">Welcome, {username}!</Typography>}
-          <LogButton setHeaderUsername={setUsername} refreshData={refreshData} isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn}/>
+          <Box>
+            {isLoggedIn && <ChangePassword userId={userId}/>}
+            <LogButton setHeaderUsername={setUsername} refreshData={refreshData} isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn}/>
+          </Box>
         </AppBar>
     </Box>
     </>
