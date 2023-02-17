@@ -10,29 +10,37 @@ datasource db {
 model Item {
   id          Int       @id(map: "PK__Item__3213E83F08ABBE67") @default(autoincrement())
   item        String    @db.NVarChar(255)
-  imgUrl      String?   @db.VarChar(255)
+  imgUrl      String?   @db.VarChar(510)
   description String?   @db.NVarChar(510)
-  ItemTag     ItemTag[]
+  url         String?   @db.VarChar(510)
+  userId      Int
+  User        User      @relation(fields: [userId], references: [id], onUpdate: NoAction, map: "FK__Item__userId__60A75C0F")
+  tags        ItemTag[]
 }
 
 model ItemTag {
   id     Int   @id(map: "PK__ItemTag__3213E83F6FCAE958") @default(autoincrement())
-  itemId Int?
-  tagId  Int?
+  itemId Int
+  tagId  Int
   value  Int?
-  Item   Item? @relation(fields: [itemId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK__ItemTag__itemId__5EBF139D")
-  Tag    Tag?  @relation(fields: [tagId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK__ItemTag__tagId__5FB337D6")
+  Item   Item @relation(fields: [itemId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK__ItemTag__itemId__5EBF139D")
+  Tag    Tag  @relation(fields: [tagId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK__ItemTag__tagId__5FB337D6")
 }
 
 model Tag {
   id         Int       @id(map: "PK__Tag__3213E83FB8393F8C") @default(autoincrement())
   tag        String    @db.NVarChar(255)
-  isVariable Boolean
+  isVariable Boolean   @default(false, map: "DF__Tag__isVariable__5BE2A6F2")
+  color      String?   @db.Char(6)
+  userId     Int
   ItemTag    ItemTag[]
+  User       User      @relation(fields: [userId], references: [id], onUpdate: NoAction, map: "FK__Tag__userId__619B8048")
 }
 
 model User {
   id       Int     @id(map: "PK__User__3213E83FCDEEF82E") @default(autoincrement())
   username String  @unique(map: "UQ__User__F3DBC572D9BCE399") @db.VarChar(255)
   password String? @db.VarChar(255)
+  Item     Item[]
+  Tag      Tag[]
 }
