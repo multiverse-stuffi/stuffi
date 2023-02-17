@@ -46,7 +46,7 @@ function logButton({ refreshData, isLoggedIn, setIsLoggedIn, setHeaderUsername }
     special: false,
   };
 
-  const [modalIsOpen, setIsOpen] = useState(false);
+  const [modalIsOpen, setIsOpen] = useState(!isLoggedIn);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
