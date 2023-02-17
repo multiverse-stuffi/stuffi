@@ -103,7 +103,6 @@ function Home({ data, url, token, user }) {
     setTagColors(generateTagColors());
   }, [tags]);
   useEffect(() => {
-    console.log(sort, sortMode);
     const sorted = [...filteredItems];
     if (sort === 0) {
       if (sortMode === 'desc') setSortedItems(sorted);
@@ -126,7 +125,7 @@ function Home({ data, url, token, user }) {
     <>
       <Header username={username} setUsername={setUsername} userId={user.id} refreshData={refreshData} isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />
       {isLoggedIn && <Filters sort={sort} setSort={setSort} sortMode={sortMode} setSortMode={setSortMode} tagColors={tagColors} tags={tags} getContrastingColor={getContrastingColor} filters={filters} setFilters={setFilters} filterMode={filterMode} setFilterMode={setFilterMode} />}
-      <EditModal editModal={editModal} setEditModal={setEditModal}/>
+      <EditModal tags={tags} tagColors={tagColors} editModal={editModal} setEditModal={setEditModal} getContrastingColor={getContrastingColor}/>
       <Box sx={boxStyles}>
         {sortedItems.map(item => (
           <StuffCard tagColors={tagColors} getContrastingColor={getContrastingColor} key={item.id} item={item} setEditModal={setEditModal} />

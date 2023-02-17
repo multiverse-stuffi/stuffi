@@ -1,4 +1,4 @@
-import { useState, useRef, createRef } from "react";
+import { useState, useRef, createRef, useEffect } from "react";
 import { ExpandCircleDownOutlined } from "@mui/icons-material";
 import {
     Typography,
@@ -22,14 +22,18 @@ function Filters({ getContrastingColor, tags, filterMode, setFilterMode, setFilt
     const [filtersExpanded, setFiltersExpanded] = useState(false);
     const [sortExpanded, setSortExpanded] = useState(false);
     const refs = useRef({});
-    for (const tag of tags) {
-        refs.current[tag.id] = {};
-        refs.current[tag.id].check = refs.current[tag.id].check ?? createRef();
-        if (tag.isVariable) {
-            refs.current[tag.id].comp = refs.current[tag.id].comp ?? createRef();
-            refs.current[tag.id].val = refs.current[tag.id].val ?? createRef();
+    const createTagRefs = () => {
+        for (const tag of tags) {
+            refs.current[tag.id] = {};
+            refs.current[tag.id].check = refs.current[tag.id].check ?? createRef();
+            if (tag.isVariable) {
+                refs.current[tag.id].comp = refs.current[tag.id].comp ?? createRef();
+                refs.current[tag.id].val = refs.current[tag.id].val ?? createRef();
+            }
         }
     }
+    createTagRefs();
+    useEffect(createTagRefs, [tags]);
 
     const filterToggle = () => {
         setFiltersExpanded(!filtersExpanded);
@@ -44,19 +48,23 @@ function Filters({ getContrastingColor, tags, filterMode, setFilterMode, setFilt
     };
 
     const handleFilter = (tagId) => {
-        let newFilters = [...filters];
+        let newFilters = [...filters]; // Copy what we currently have
         let done = false;
-        for (let i = 0; i < newFilters.length; i++) {
-            if (newFilters[i].id !== tagId) continue;
-            if (refs.current[tagId].check.current.checked) newFilters[i] = { id: tagId, value: refs.current[tagId].val ? refs.current[tagId].val.current.value : null, compType: refs.current[tagId].comp ? refs.current[tagId].comp.current.value : null };
-            else newFilters.splice(i, 1);
-            done = true;
-            break;
+        for (let i = 0; i < newFilters.length; i++) { // Loop through our copy
+            if (newFilters[i].id !== tagId) continue; // Skip it if it is not the tag we just modified
+            if (refs.current[tagId].check.current.checked) newFilters[i] = { // If we get here, that means we found the tag we just changed. If the box is checked, let's update it to reflect the current values we entered (checkbox, number field)
+                id: tagId,
+                value: refs.current[tagId].val ? refs.current[tagId].val.current.value : null,
+                compType: refs.current[tagId].comp ? refs.current[tagId].comp.current.value : null
+            };
+            else newFilters.splice(i, 1); // If we got here but the checkbox is unchecked, delete it from our array
+            done = true; // Keep track that we finished what we wanted to do
+            break; // We already found the one and only item we wanted, so we can stop looping
         }
-        if (!done && refs.current[tagId].check.current.checked) {
+        if (!done && refs.current[tagId].check.current.checked) { // If we didn't finish what we wanted to do, and the box is checked, add it to the array
             newFilters.push({ id: tagId, value: refs.current[tagId].val ? refs.current[tagId].val.current.value : null, compType: refs.current[tagId].comp ? refs.current[tagId].comp.current.value : null });
         }
-        setFilters(newFilters);
+        setFilters(newFilters); // Update state with new array
     };
 
     const handleSortMode = (e) => {
@@ -98,7 +106,7 @@ function Filters({ getContrastingColor, tags, filterMode, setFilterMode, setFilt
                 </Box>
                 <Box sx={{ display: filtersExpanded ? 'flex' : 'none' }}>
                     <Box sx={{ width: '80%' }}>
-                        <List sx={{ py: 1, display: 'flex', flexDirection: 'row' }}>
+                        <List sx={{ py: 1, display: 'flex', flexDirection: 'row', gap: '20px' }}>
                             {tags.map((tag) => {
                                 const tagStyle =
                                     tag.color ? { tag: '#' + tag.color, text: getContrastingColor(tag.color) }
@@ -197,7 +205,7 @@ function Filters({ getContrastingColor, tags, filterMode, setFilterMode, setFilt
                     </Typography>
                 </Box>
                 <Box sx={{ display: sortExpanded ? 'flex' : 'none', justifyContent: 'space-between', pt: '5px' }}>
-                    <FormControl sx={{ml: '20px'}}>
+                    <FormControl sx={{ ml: '20px' }}>
                         <FormLabel sx={{ display: 'inline' }}>Sort by</FormLabel>
                         <Select
                             defaultValue={0}
