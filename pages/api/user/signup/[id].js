@@ -1,7 +1,6 @@
 const bcrypt = require("bcrypt");
 const jwt = require('jsonwebtoken');
-import { PrismaClient } from '@prisma/client';
-const prisma = new PrismaClient();
+import prisma from '../../../../lib/prisma';
 
 export default async function handler(req, res) {
     if (req.method === 'PUT') {
@@ -23,7 +22,7 @@ export default async function handler(req, res) {
             res.status(400).send('New password cannot be the same as the old');
             return;
         }
-        if (newPassword.length < 8 || !/[a-z]/.test(newPassword) || !/[A-Z]/.test(newPassword) || !/\d/.test(newPassword) || /^[A-Za-z0-9]*$/.test(password)) {
+        if (newPassword.length < 8 || !/[a-z]/.test(newPassword) || !/[A-Z]/.test(newPassword) || !/\d/.test(newPassword) || /^[A-Za-z0-9]*$/.test(newPassword)) {
             res.status(400).send('New password must be at least 8 characters and contain uppercase, lowercase, number, and special character');
             return;
         }
