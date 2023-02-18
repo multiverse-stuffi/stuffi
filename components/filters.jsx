@@ -112,13 +112,13 @@ function Filters({ getContrastingColor, tags, filterMode, setFilterMode, setFilt
                 </Box>
                 <Box sx={{ display: filtersExpanded ? 'flex' : 'none' }}>
                     <Box sx={{ width: '80%' }}>
-                        <List sx={{ py: 1, display: 'flex', flexDirection: 'row', gap: '20px' }}>
+                        <List sx={{ py: 1, display: 'flex', flexDirection: 'row', gap: '20px', width: '100%', flexWrap: 'wrap' }}>
                             {tags.map((tag) => {
                                 const tagStyle =
                                     tag.color ? { tag: '#' + tag.color, text: getContrastingColor(tag.color) }
                                         : (tagColors[tag.id] ?? { tag: '#fff', text: '#000' });
                                 return (
-                                    <ListItem key={tag.tag} disablePadding>
+                                    <ListItem key={tag.tag} sx={{width: 'fit-content'}} disablePadding>
                                         <Checkbox
                                             checked={filters.some(i => i.id == tag.id)}
                                             onChange={() => { handleFilter(tag.id) }}

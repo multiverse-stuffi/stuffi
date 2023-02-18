@@ -125,7 +125,7 @@ function Home({ data, url, token, user }) {
     <>
       <Header username={username} setUsername={setUsername} userId={user.id} refreshData={refreshData} setEditModal={setEditModal} isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />
       {isLoggedIn && <Filters setEditModal={setEditModal} sort={sort} setSort={setSort} sortMode={sortMode} setSortMode={setSortMode} tagColors={tagColors} tags={tags} getContrastingColor={getContrastingColor} filters={filters} setFilters={setFilters} filterMode={filterMode} setFilterMode={setFilterMode} />}
-      <EditModal tags={tags} tagColors={tagColors} editModal={editModal} setEditModal={setEditModal} getContrastingColor={getContrastingColor}/>
+      <EditModal refreshData={refreshData} tags={tags} tagColors={tagColors} editModal={editModal} setEditModal={setEditModal} getContrastingColor={getContrastingColor}/>
       <Box sx={boxStyles}>
         {sortedItems.map(item => (
           <StuffCard tagColors={tagColors} getContrastingColor={getContrastingColor} key={item.id} item={item} setEditModal={setEditModal} />
