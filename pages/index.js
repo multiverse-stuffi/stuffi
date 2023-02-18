@@ -35,11 +35,14 @@ function Home({ data, url, token, user }) {
       { tag: "#004f2d", text: "#fff" }
     ];
     for (const tag of tags) {
-      if (tag.color === null) newColors[tag.id] = samples[Math.floor(Math.random() * samples.length)];
+      if (!tag.color) newColors[tag.id] = samples[Math.floor(Math.random() * samples.length)];
     }
     return newColors;
   };
   const [tagColors, setTagColors] = useState(generateTagColors());
+  useEffect(() => {
+    setTagColors(generateTagColors());
+  }, [tags]);
   const refreshData = async () => {
     if (!getCookie('token')) {
       setItems([]);
@@ -100,9 +103,6 @@ function Home({ data, url, token, user }) {
     setFilteredItems(filtered);
   }, [items, filters, filterMode])
   useEffect(() => {
-    setTagColors(generateTagColors());
-  }, [tags]);
-  useEffect(() => {
     const sorted = [...filteredItems];
     if (sort === 0) {
       if (sortMode === 'desc') setSortedItems(sorted);
@@ -125,7 +125,7 @@ function Home({ data, url, token, user }) {
     <>
       <Header username={username} setUsername={setUsername} userId={user.id} refreshData={refreshData} setEditModal={setEditModal} isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />
       {isLoggedIn && <Filters setEditModal={setEditModal} sort={sort} setSort={setSort} sortMode={sortMode} setSortMode={setSortMode} tagColors={tagColors} tags={tags} getContrastingColor={getContrastingColor} filters={filters} setFilters={setFilters} filterMode={filterMode} setFilterMode={setFilterMode} />}
-      <EditModal refreshData={refreshData} tags={tags} tagColors={tagColors} editModal={editModal} setEditModal={setEditModal} getContrastingColor={getContrastingColor}/>
+      <EditModal setItems={setItems} items={items} setTags={setTags} tags={tags} tagColors={tagColors} editModal={editModal} setEditModal={setEditModal} getContrastingColor={getContrastingColor} />
       <Box sx={boxStyles}>
         {sortedItems.map(item => (
           <StuffCard tagColors={tagColors} getContrastingColor={getContrastingColor} key={item.id} item={item} setEditModal={setEditModal} />
@@ -149,10 +149,10 @@ function getContrastingColor(backgroundColor) {
 export async function getServerSideProps(context) {
   const { req } = context;
   const url = `${process.env.HOST}${process.env.PORT ? ':' + process.env.PORT : ''}`;
-  let user = {username: null, id: null};
+  let user = { username: null, id: null };
   if (!req.cookies.token) return {
     props: {
-      data: {items: [], tags: []},
+      data: { items: [], tags: [] },
       url,
       token: null,
       user

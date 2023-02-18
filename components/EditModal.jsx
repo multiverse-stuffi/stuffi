@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, createRef } from "react";
 import Modal from "react-modal";
 import { Close, Add } from "@mui/icons-material";
-import Image from "next/image";
+import NextImage from "next/image";
 import { getCookies } from 'cookies-next';
 import {
   Typography,
@@ -13,7 +13,8 @@ import {
   ListItemText,
   Box,
   Checkbox,
-  FormLabel
+  FormLabel,
+  InputAdornment
 } from "@mui/material";
 
 const customStyles = {
@@ -28,6 +29,7 @@ const customStyles = {
     marginRight: "-50%",
     transform: "translate(-50%, -50%)",
     padding: "10px",
+    maxWidth: '80%',
   },
 };
 
@@ -43,7 +45,7 @@ const buttonStyles = {
 
 Modal.setAppElement("#__next");
 
-function EditModal({ editModal, setEditModal, tagColors, tags, getContrastingColor, refreshData }) {
+function EditModal({ editModal, setEditModal, tagColors, tags, getContrastingColor, setTags, setItems, items }) {
   const [item, setItem] = useState(editModal ? editModal.item : '');
   const [description, setDescription] = useState(
     editModal ? editModal.description : ''
@@ -59,6 +61,10 @@ function EditModal({ editModal, setEditModal, tagColors, tags, getContrastingCol
   const [tagColor, setTagColor] = useState('');
   const [tagVariable, setTagVariable] = useState(false);
   const [modalTags, setModalTags] = useState(tags);
+  const [itemError, setItemError] = useState(false);
+  const [imgError, setImgError] = useState(false);
+  const [tagError, setTagError] = useState(false);
+  const [colorError, setColorError] = useState(false);
   useEffect(() => {
     setItem(editModal ? editModal.item : '');
     setDescription(editModal ? editModal.description : '');
@@ -67,7 +73,12 @@ function EditModal({ editModal, setEditModal, tagColors, tags, getContrastingCol
     setAllowPreview(editModal && editModal.imgUrl ? true : false);
     setItemTags(editModal ? editModal.tags : []);
     setIsNew(editModal ? !editModal.id : null)
+    setItemError(false);
+    setImgError(false);
     document.body.style.overflow = editModal ? 'hidden' : 'unset';
+    for (const tag of modalTags) {
+      delete tag.initialVal;
+    }
   }, [editModal])
   const refs = useRef({});
   function createTagRefs() {
@@ -83,28 +94,24 @@ function EditModal({ editModal, setEditModal, tagColors, tags, getContrastingCol
   createTagRefs();
   useEffect(createTagRefs, [modalTags]);
   useEffect(() => { if (!allowPreview) setShowPreview(false); }, [allowPreview]);
-  useEffect(() => {setModalTags(tags);}, [tags, editModal]);
+  useEffect(() => { setModalTags(tags); }, [tags, editModal]);
   function closeModal() {
     setEditModal(false);
   }
-  async function checkImage(url) {
-    try {
-      const res = await fetch(url, { mode: 'no-cors' });
-      const buff = await res.blob();
-      return buff.type.startsWith('image/');
-    } catch (e) {
-      return false;
-    }
-
+  function checkImage(imageSrc) {
+    var img = new Image();
+    img.onload = () => { setAllowPreview(true) };
+    img.onerror = () => { setAllowPreview(false) };
+    img.src = imageSrc;
   }
   const handleTag = (tagId) => {
     let newTags = [...itemTags]; // Copy what we currently have
     let done = false;
-    let Tag = null;
+    let Tag;
     for (let i = 0; i < newTags.length; i++) { // Loop through our copy
+      Tag = modalTags.filter(tag => tag.id === tagId)[0];
       if (newTags[i].tagId !== tagId) continue; // Skip it if it is not the tag we just modified
       if (refs.current[tagId].check.current.checked) {
-        Tag = modalTags.filter(tag => tag.tagId === tagId)[0];
         newTags[i] = { // If we get here, that means we found the tag we just changed. If the box is checked, let's update it to reflect the current values we entered (checkbox, number field)
           tagId,
           value: refs.current[tagId].val ? refs.current[tagId].val.current.value : null,
@@ -116,13 +123,13 @@ function EditModal({ editModal, setEditModal, tagColors, tags, getContrastingCol
       break; // We already found the one and only item we wanted, so we can stop looping
     }
     if (!done && refs.current[tagId].check.current.checked) { // If we didn't finish what we wanted to do, and the box is checked, add it to the array
-      Tag = modalTags.filter(tag => tag.tagId === tagId)[0];
       newTags.push({
         tagId,
         value: refs.current[tagId].val ? refs.current[tagId].val.current.value : null,
         Tag
       });
     }
+    if (!Tag.hasOwnProperty('initialVal')) Tag.initialVal = !refs.current[tagId].check.current.checked;
     setItemTags(newTags); // Update state with new array
   };
   const openTagModal = () => {
@@ -133,52 +140,109 @@ function EditModal({ editModal, setEditModal, tagColors, tags, getContrastingCol
     setTagName('');
     setTagColor('');
     setTagVariable(false);
+    setTagError(false);
+    setColorError(false);
   }
   const addTag = () => {
+    if (!tagName.trim()) {
+      setTagError(true);
+      return;
+    }
+    if (tagColor.trim() && !/^[A-Za-z0-9]{6}$/.test(tagColor.trim())) {
+      setColorError(true);
+      return;
+    }
     const newTags = [...modalTags];
     const newItemTags = [...itemTags];
-    const Tag = {id: 0, tag: tagName, color: tagColor, isVariable: tagVariable};
+    const Tag = { id: 0, tag: tagName, color: tagColor, isVariable: tagVariable, initialVal: false };
     newTags.push(Tag);
-    newItemTags.push({tagId: 0, value: tagVariable ? 1 : null, Tag})
+    newItemTags.push({ tagId: 0, value: tagVariable ? 1 : null, Tag })
     setModalTags(newTags);
     setItemTags(newItemTags);
     closeTagModal();
   }
   const submitHandler = async () => {
+    if (!item.trim()) {
+      setItemError(true);
+      return;
+    }
+    if (imgUrl.trim() && !allowPreview) {
+      setImgError(true);
+      return;
+    }
     const Cookie = getCookies();
     const itemRes = await fetch(`/api/item/${isNew ? '' : editModal.id}`, {
       method: isNew ? "POST" : "PUT",
       body: JSON.stringify({ item, description, url, imgUrl }),
       headers: { Cookie }
     });
-    if (isNew && itemRes.ok) {
-      const data = await itemRes.json();
-      editModal.id = data.id;
+    let dbItem;
+    if (itemRes.ok) {
+      dbItem = await itemRes.json();
+      if (isNew) editModal.id = dbItem.id;
     }
+    let newTags = false;
     for (const tag of modalTags) {
       if (tag.id) continue;
+      newTags = true;
       const tagRes1 = await fetch(`/api/tag`, {
         method: "POST",
-        body: JSON.stringify({tag: tag.tag, color: tag.color, isVariable: tag.isVariable}),
+        body: JSON.stringify({ tag: tag.tag, color: tag.color, isVariable: tag.isVariable }),
         headers: { Cookie }
       });
       if (tagRes1.ok) {
         const json = await tagRes1.json();
         tag.id = json.id;
         for (let i = 0; i < itemTags.length; i++) {
-          if (itemTags[i].tagId === 0 && itemTags[i].Tag.tag === tag.tag) itemTags[i].tagId = json.id;
+          if (itemTags[i].tagId === 0 && itemTags[i].Tag.tag === tag.tag) {
+            itemTags[i].tagId = json.id;
+          }
         }
       }
     }
     for (const tag of modalTags) {
       const add = itemTags.some(i => i.tagId == tag.id);
+      if (!tag.hasOwnProperty('initialVal') || tag.initialVal === add) continue;
       await fetch(`/api/item/${editModal.id}/tag/${tag.id}`, {
         method: add ? "POST" : "DELETE",
-        body: JSON.stringify(add ? {value: itemTags.filter(i => i.tagId == tag.id)[0].value} : {}),
+        body: JSON.stringify(add ? { value: itemTags.filter(i => i.tagId == tag.id)[0].value } : {}),
         headers: { Cookie }
       });
     }
-    refreshData();
+    if (newTags) setTags(modalTags);
+    dbItem.tags = itemTags;
+    const itemsCopy = [...items];
+    if (isNew) for (let i = 0; i < itemsCopy.length; i++) {
+      if (itemsCopy[i].tags.length <= itemTags.length) {
+        itemsCopy.splice(i, 0, dbItem);
+        break;
+      }
+    }
+    else {
+      let found = false;
+      let placed = false;
+      dbItem.new = true;
+      let idx;
+      for (let i = 0; i < itemsCopy.length; i++) {
+        if (!placed && ((itemsCopy[i].tags.length < itemTags.length) || (itemsCopy[i].tags.length === itemTags.length && itemsCopy[i].id >= dbItem.id))) {
+          itemsCopy.splice(i, 0, dbItem);
+          idx = i;
+          placed = true;
+        }
+        if (itemsCopy[i].id === dbItem.id && !itemsCopy[i].new) {
+          itemsCopy.splice(i, 1);
+          found = true;
+          if (!placed) i--;
+        }
+        if (found && placed) break;
+      }
+      if (!placed) {
+        dbItem.new = false;
+        itemsCopy.push(dbItem);
+      } else itemsCopy[idx].new = false;
+
+    }
+    setItems(itemsCopy);
     setEditModal(false);
   }
   return (
@@ -218,8 +282,11 @@ function EditModal({ editModal, setEditModal, tagColors, tags, getContrastingCol
             label="Title"
             value={item}
             onChange={(e) => {
+              setItemError(false);
               setItem(e.target.value);
             }}
+            error={itemError}
+            helperText={itemError ? 'Title required' : null}
           />
           <TextField
             label="Description"
@@ -241,10 +308,14 @@ function EditModal({ editModal, setEditModal, tagColors, tags, getContrastingCol
             label="Image Link"
             value={imgUrl}
             onChange={async (e) => {
+              setImgError(false);
               setImgUrl(e.target.value);
-              const isValid = await checkImage(e.target.value);
-              setAllowPreview(isValid);
+              if (e.target.value) {
+                checkImage(e.target.value);
+              } else setAllowPreview(false);
             }}
+            error={imgError}
+            helperText={imgError ? 'Invalid image url' : null}
           />
         </Box>
         {allowPreview && (
@@ -255,26 +326,36 @@ function EditModal({ editModal, setEditModal, tagColors, tags, getContrastingCol
               setShowPreview(!showPreview);
             }}
           >
-            {showPreview ? "Hide preview" : "Show preview"}
+            View Preview
           </Typography>
         )}
-        {showPreview && (
-          <Image
+        <Modal
+          isOpen={showPreview}
+          onRequestClose={() => { setShowPreview(false); }}
+          contentLabel="Image preview"
+          style={customStyles}
+        >
+          <div className="right">
+            <IconButton onClick={() => { setShowPreview(false); }}>
+              <Close />
+            </IconButton>
+          </div>
+          <NextImage
             width={256}
             height={256}
             src={showPreview ? imgUrl : ''}
             alt="Image preview"
             style={{ border: '10px solid lightgray' }}
           />
-        )}
+        </Modal>
         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-          <List sx={{ py: 1, display: 'flex', flexDirection: 'row', gap: '20px' }}>
+          <List sx={{ py: 1, display: 'flex', flexDirection: 'row', gap: '20px', flexWrap: 'wrap' }}>
             {modalTags.map((tag) => {
               const tagStyle =
                 tag.color ? { tag: '#' + tag.color, text: getContrastingColor(tag.color) }
                   : (tagColors[tag.id] ?? { tag: '#0A8754', text: '#fff' });
               return (
-                <ListItem key={tag.id} disablePadding>
+                <ListItem key={tag.id} disablePadding sx={{ width: 'min-content' }}>
                   <Checkbox
                     checked={itemTags.some(i => i.tagId == tag.id)}
                     onChange={() => { handleTag(tag.id); }}
@@ -334,10 +415,26 @@ function EditModal({ editModal, setEditModal, tagColors, tags, getContrastingCol
               </IconButton>
             </div>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              <TextField label="Tag Name" value={tagName} onChange={(e) => {setTagName(e.target.value)}}/>
-              <TextField label="Hex Color" value={tagColor} onChange={(e) => {setTagColor(e.target.value)}}/>
-              <Box sx={{display: 'flex', alignItems: 'center'}}>
-                <Checkbox checked={tagVariable} onChange={(e) => {setTagVariable(e.target.checked)}} sx={{width: 'fit-content'}} />
+              <TextField label="Tag Name"
+                value={tagName}
+                onChange={(e) => { setTagError(false); setTagName(e.target.value) }}
+                error={tagError}
+                helperText={tagError ? 'Name required' : null}
+              />
+              <TextField
+                label="Hex Color"
+                value={tagColor}
+                onChange={(e) => { setColorError(false); setTagColor(e.target.value) }}
+                error={colorError}
+                helperText={colorError ? 'Must be a 6 character hex value' : null}
+                InputProps={{
+                  startAdornment:
+                    <InputAdornment disableTypography position="start">
+                      #</InputAdornment>,
+                }}
+              />
+              <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                <Checkbox checked={tagVariable} onChange={(e) => { setTagVariable(e.target.checked) }} sx={{ width: 'fit-content' }} />
                 <FormLabel>Variable</FormLabel>
               </Box>
               <Box sx={{ display: "flex", justifyContent: "center" }} onClick={addTag}>

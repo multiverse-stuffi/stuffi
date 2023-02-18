@@ -61,7 +61,7 @@ export default function StuffCard({
           {item.item}
         </Typography>
         <Box sx={{ display: "flex", flexWrap: "wrap" }}>
-          {item.tags.slice(0, 5).map((tag) => {
+          {item.tags.map((tag) => {
             const tagStyle = tag.Tag.color
               ? {
                   tag: "#" + tag.Tag.color,
@@ -87,13 +87,6 @@ export default function StuffCard({
               </Typography>
             );
           })}
-          {item.tags.length > 5 ? (
-            <Typography sx={{ color: "#A9A9A9" }}>
-              {item.tags.length - 5} more...
-            </Typography>
-          ) : (
-            ""
-          )}
         </Box>
       </CardContent>
     </Card>
