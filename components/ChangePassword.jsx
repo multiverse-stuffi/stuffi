@@ -35,7 +35,7 @@ const buttonStyles = {
 
 Modal.setAppElement("#__next");
 
-function logButton({ userId }) {
+function ChangePassword({ userId }) {
     const defaultPasswordRules = {
         length: false,
         lowercase: false,
@@ -191,4 +191,4 @@ function logButton({ userId }) {
     );
 }
 
-export default logButton;
+export default ChangePassword;

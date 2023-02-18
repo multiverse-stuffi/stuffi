@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import StuffCard from "../components/card";
 import { Box } from '@mui/material';
 import Header from "../components/header";
@@ -25,7 +25,7 @@ function Home({ data, url, token, user }) {
     gap: '10px',
     justifyContent: 'center'
   }
-  const generateTagColors = () => {
+  const generateTagColors = useCallback(() => {
     const newColors = {};
     const samples = [
       { tag: "#bfd7ea", text: "#000" },
@@ -38,11 +38,11 @@ function Home({ data, url, token, user }) {
       if (!tag.color) newColors[tag.id] = samples[Math.floor(Math.random() * samples.length)];
     }
     return newColors;
-  };
+  }, [tags]);
   const [tagColors, setTagColors] = useState(generateTagColors());
   useEffect(() => {
     setTagColors(generateTagColors());
-  }, [tags]);
+  }, [tags, generateTagColors]);
   const refreshData = async () => {
     if (!getCookie('token')) {
       setItems([]);
@@ -56,7 +56,7 @@ function Home({ data, url, token, user }) {
     setItems(data.items);
     setTags(data.tags);
   }
-  const checkTag = (tag, filter = null) => {
+  const checkTag = useCallback((tag, filter = null) => {
     for (const f of (filter === null ? filters : [filter])) {
       if (f.id == tag.tagId) {
         if (f.value || f.value === 0) {
@@ -66,7 +66,7 @@ function Home({ data, url, token, user }) {
       }
     }
     return false;
-  }
+  }, [filters]);
   useEffect(() => {
     if (!filters.length) {
       setFilteredItems(items);
@@ -101,7 +101,7 @@ function Home({ data, url, token, user }) {
       if (ok) filtered.push(item);
     }
     setFilteredItems(filtered);
-  }, [items, filters, filterMode])
+  }, [items, filters, filterMode, checkTag])
   useEffect(() => {
     const sorted = [...filteredItems];
     if (sort === 0) {

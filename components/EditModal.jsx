@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, createRef } from "react";
+import { useState, useEffect, useRef, createRef, useCallback } from "react";
 import Modal from "react-modal";
 import { Close, Add } from "@mui/icons-material";
 import NextImage from "next/image";
@@ -76,10 +76,8 @@ function EditModal({ editModal, setEditModal, tagColors, tags, getContrastingCol
     setItemError(false);
     setImgError(false);
     document.body.style.overflow = editModal ? 'hidden' : 'unset';
-    for (const tag of modalTags) {
-      delete tag.initialVal;
-    }
-  }, [editModal])
+    resetInitialVals();
+  }, [editModal, resetInitialVals])
   const refs = useRef({});
   function createTagRefs() {
     const newRefs = { ...refs.current };
@@ -95,6 +93,11 @@ function EditModal({ editModal, setEditModal, tagColors, tags, getContrastingCol
   useEffect(createTagRefs, [modalTags]);
   useEffect(() => { if (!allowPreview) setShowPreview(false); }, [allowPreview]);
   useEffect(() => { setModalTags(tags); }, [tags, editModal]);
+  const resetInitialVals = useCallback(() => {
+    for (const tag of modalTags) {
+      delete tag.initialVal;
+    }
+  }, [modalTags]);
   function closeModal() {
     setEditModal(false);
   }
