@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
 import StuffCard from "../components/card";
-import Box from '@mui/material/Box';
+import { Box } from '@mui/material';
 import Header from "../components/header";
 import Filters from "../components/filters";
 import { getCookies, getCookie } from 'cookies-next';
+import EditModal from "@/components/EditModal";
 const jwt = require('jsonwebtoken');
 
 function Home({ data, url, token, user }) {
@@ -17,6 +18,7 @@ function Home({ data, url, token, user }) {
   const [sortedItems, setSortedItems] = useState(filteredItems);
   const [sort, setSort] = useState(0);
   const [sortMode, setSortMode] = useState('desc');
+  const [editModal, setEditModal] = useState(false)
   const boxStyles = {
     display: 'flex',
     flexWrap: 'wrap',
@@ -33,11 +35,14 @@ function Home({ data, url, token, user }) {
       { tag: "#004f2d", text: "#fff" }
     ];
     for (const tag of tags) {
-      if (tag.color === null) newColors[tag.id] = samples[Math.floor(Math.random() * samples.length)];
+      if (!tag.color) newColors[tag.id] = samples[Math.floor(Math.random() * samples.length)];
     }
     return newColors;
   };
   const [tagColors, setTagColors] = useState(generateTagColors());
+  useEffect(() => {
+    setTagColors(generateTagColors());
+  }, [tags]);
   const refreshData = async () => {
     if (!getCookie('token')) {
       setItems([]);
@@ -98,10 +103,6 @@ function Home({ data, url, token, user }) {
     setFilteredItems(filtered);
   }, [items, filters, filterMode])
   useEffect(() => {
-    setTagColors(generateTagColors());
-  }, [tags]);
-  useEffect(() => {
-    console.log(sort, sortMode);
     const sorted = [...filteredItems];
     if (sort === 0) {
       if (sortMode === 'desc') setSortedItems(sorted);
@@ -122,11 +123,12 @@ function Home({ data, url, token, user }) {
   }, [filteredItems, sort, sortMode])
   return (
     <>
-      <Header username={username} setUsername={setUsername} userId={user.id} refreshData={refreshData} isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />
-      {isLoggedIn && <Filters sort={sort} setSort={setSort} sortMode={sortMode} setSortMode={setSortMode} tagColors={tagColors} tags={tags} getContrastingColor={getContrastingColor} filters={filters} setFilters={setFilters} filterMode={filterMode} setFilterMode={setFilterMode} />}
+      <Header username={username} setUsername={setUsername} userId={user.id} refreshData={refreshData} setEditModal={setEditModal} isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />
+      {isLoggedIn && <Filters setEditModal={setEditModal} sort={sort} setSort={setSort} sortMode={sortMode} setSortMode={setSortMode} tagColors={tagColors} tags={tags} getContrastingColor={getContrastingColor} filters={filters} setFilters={setFilters} filterMode={filterMode} setFilterMode={setFilterMode} />}
+      <EditModal setItems={setItems} items={items} setTags={setTags} tags={tags} tagColors={tagColors} editModal={editModal} setEditModal={setEditModal} getContrastingColor={getContrastingColor} />
       <Box sx={boxStyles}>
         {sortedItems.map(item => (
-          <StuffCard tagColors={tagColors} getContrastingColor={getContrastingColor} key={item.id} item={item} />
+          <StuffCard tagColors={tagColors} getContrastingColor={getContrastingColor} key={item.id} item={item} setEditModal={setEditModal} />
         ))}
       </Box>
     </>
@@ -147,10 +149,10 @@ function getContrastingColor(backgroundColor) {
 export async function getServerSideProps(context) {
   const { req } = context;
   const url = `${process.env.HOST}${process.env.PORT ? ':' + process.env.PORT : ''}`;
-  let user = {username: null, id: null};
+  let user = { username: null, id: null };
   if (!req.cookies.token) return {
     props: {
-      data: {items: [], tags: []},
+      data: { items: [], tags: [] },
       url,
       token: null,
       user
