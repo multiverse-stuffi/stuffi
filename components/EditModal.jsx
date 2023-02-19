@@ -65,24 +65,17 @@ function EditModal({ editModal, setEditModal, tagColors, tags, getContrastingCol
   const [imgError, setImgError] = useState(false);
   const [tagError, setTagError] = useState(false);
   const [colorError, setColorError] = useState(false);
-  const resetInitialVals = useCallback(() => {
-    for (const tag of modalTags) {
-      delete tag.initialVal;
-    }
-  }, [modalTags]);
   useEffect(() => {
     setItem(editModal ? editModal.item : '');
     setDescription(editModal ? editModal.description : '');
     setUrl(editModal ? editModal.url : '');
     setImgUrl(editModal ? editModal.imgUrl : '');
     setAllowPreview(editModal && editModal.imgUrl ? true : false);
-    setItemTags(editModal ? editModal.tags : []);
     setIsNew(editModal ? !editModal.id : null)
     setItemError(false);
     setImgError(false);
     document.body.style.overflow = editModal ? 'hidden' : 'unset';
-    resetInitialVals();
-  }, [editModal, resetInitialVals])
+  }, [editModal])
   const refs = useRef({});
   function createTagRefs() {
     const newRefs = { ...refs.current };
@@ -98,6 +91,7 @@ function EditModal({ editModal, setEditModal, tagColors, tags, getContrastingCol
   useEffect(createTagRefs, [modalTags]);
   useEffect(() => { if (!allowPreview) setShowPreview(false); }, [allowPreview]);
   useEffect(() => { setModalTags(tags); }, [tags, editModal]);
+  useEffect(() => { setItemTags(editModal ? [...editModal.tags] : []); }, [editModal]);
   function closeModal() {
     setEditModal(false);
   }
@@ -107,7 +101,7 @@ function EditModal({ editModal, setEditModal, tagColors, tags, getContrastingCol
     img.onerror = () => { setAllowPreview(false) };
     img.src = imageSrc;
   }
-  const handleTag = (tagId) => {
+  const handleTag = (tagId, fromCheck=true) => {
     let newTags = [...itemTags]; // Copy what we currently have
     let done = false;
     let Tag;
@@ -132,7 +126,6 @@ function EditModal({ editModal, setEditModal, tagColors, tags, getContrastingCol
         Tag
       });
     }
-    if (!Tag.hasOwnProperty('initialVal')) Tag.initialVal = !refs.current[tagId].check.current.checked;
     setItemTags(newTags); // Update state with new array
   };
   const openTagModal = () => {
@@ -157,11 +150,11 @@ function EditModal({ editModal, setEditModal, tagColors, tags, getContrastingCol
     }
     const newTags = [...modalTags];
     const newItemTags = [...itemTags];
-    const Tag = { id: 0, tag: tagName, color: tagColor, isVariable: tagVariable, initialVal: false };
+    const Tag = { id: 0, tag: tagName, color: tagColor, isVariable: tagVariable };
     newTags.push(Tag);
     newItemTags.push({ tagId: 0, value: tagVariable ? 1 : null, Tag })
-    setModalTags(newTags);
     setItemTags(newItemTags);
+    setModalTags(newTags);
     closeTagModal();
   }
   const submitHandler = async () => {
@@ -204,12 +197,11 @@ function EditModal({ editModal, setEditModal, tagColors, tags, getContrastingCol
       }
     }
     for (const tag of modalTags) {
-      const add = itemTags.some(i => i.tagId == tag.id);
-      if (!tag.hasOwnProperty('initialVal') || tag.initialVal === add) continue;
-      let alreadyAdded = null;
-      if (add) alreadyAdded = editModal.tags.some(i => i.tagId == tag.id);
+      const add = itemTags.filter(i => i.tagId == tag.id)[0];
+      const originalTag = editModal.tags.filter(i => i.tagId == tag.id)[0];
+      if (!!originalTag === !!add && add?.value === originalTag?.value) continue;
       await fetch(`/api/item/${editModal.id}/tag/${tag.id}`, {
-        method: add ? (alreadyAdded ? "PUT" : "POST") : "DELETE",
+        method: add ? (originalTag ? "PUT" : "POST") : "DELETE",
         body: JSON.stringify(add ? { value: itemTags.filter(i => i.tagId == tag.id)[0].value } : {}),
         headers: { Cookie }
       });
@@ -360,9 +352,9 @@ function EditModal({ editModal, setEditModal, tagColors, tags, getContrastingCol
                 tag.color ? { tag: '#' + tag.color, text: getContrastingColor(tag.color) }
                   : (tagColors[tag.id] ?? { tag: '#0A8754', text: '#fff' });
               return (
-                <ListItem key={tag.id} disablePadding sx={{ width: 'min-content' }}>
+                <ListItem key={tag.id ? tag.id : tag.tag} disablePadding sx={{ width: 'min-content' }}>
                   <Checkbox
-                    checked={itemTags.some(i => i.tagId == tag.id)}
+                    checked={itemTags.some(i => tag.id > 0 ? i.tagId == tag.id : tag.tag === i.Tag.tag && i.tagId == 0)}
                     onChange={() => { handleTag(tag.id); }}
                     value={tag.id}
                     inputProps={{ ref: refs.current[tag.id].check }}
@@ -395,8 +387,8 @@ function EditModal({ editModal, setEditModal, tagColors, tags, getContrastingCol
                             MozAppearance: "textfield",
                           },
                         }}
-                        onChange={() => { handleTag(tag.id) }}
-                        value={itemTags.filter(i => i.tagId == tag.id)[0]?.value}
+                        onChange={() => { handleTag(tag.id, false) }}
+                        value={itemTags.filter(i => tag.id > 0 ? i.tagId == tag.id : i.Tag.tag == tag.tag)[0]?.value}
                         inputProps={{
                           ref: refs.current[tag.id].val
                         }}
