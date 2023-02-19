@@ -49,10 +49,10 @@ function Home({ data, url, token, user }) {
       setItems([]);
       return;
     }
-    const itemsRes = await fetch(`http${/:\d+$/.test(url) ? '' : 's'}://${url}/api/item`, { headers: { Cookie: getCookies() } });
+    const itemsRes = await fetch('/api/item', { headers: { Cookie: getCookies() } });
     const data = {};
     data.items = itemsRes.ok ? await itemsRes.json() : [];
-    const tagsRes = await fetch(`http${/:\d+$/.test(url) ? '' : 's'}://${url}/api/tag`, { headers: { Cookie: getCookies() } });
+    const tagsRes = await fetch('/api/tag', { headers: { Cookie: getCookies() } });
     data.tags = tagsRes.ok ? await tagsRes.json() : [];
     setItems(data.items);
     setTags(data.tags);
