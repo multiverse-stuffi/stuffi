@@ -8,7 +8,7 @@ import EditModal from "@/components/EditModal";
 import prisma from '../lib/prisma';
 const jwt = require('jsonwebtoken');
 
-function Home({ data, url, token, user }) {
+function Home({ data, token, user }) {
   const [items, setItems] = useState(data.items);
   const [filteredItems, setFilteredItems] = useState(items);
   const [isLoggedIn, setIsLoggedIn] = useState(!!token);
@@ -49,10 +49,10 @@ function Home({ data, url, token, user }) {
       setItems([]);
       return;
     }
-    const itemsRes = await fetch(`http${/:\d+$/.test(url) ? '' : 's'}://${url}/api/item`, { headers: { Cookie: getCookies() } });
+    const itemsRes = await fetch('/api/item', { headers: { Cookie: getCookies() } });
     const data = {};
     data.items = itemsRes.ok ? await itemsRes.json() : [];
-    const tagsRes = await fetch(`http${/:\d+$/.test(url) ? '' : 's'}://${url}/api/tag`, { headers: { Cookie: getCookies() } });
+    const tagsRes = await fetch('/api/tag', { headers: { Cookie: getCookies() } });
     data.tags = tagsRes.ok ? await tagsRes.json() : [];
     setItems(data.items);
     setTags(data.tags);
@@ -149,12 +149,10 @@ function getContrastingColor(backgroundColor) {
 
 export async function getServerSideProps(context) {
   const { req } = context;
-  const url = `${process.env.HOST}${process.env.PORT ? ':' + process.env.PORT : ''}`;
   let user = { username: null, id: null };
   if (!req.cookies.token) return {
     props: {
       data: { items: [], tags: [] },
-      url,
       token: null,
       user
     }
@@ -195,7 +193,6 @@ export async function getServerSideProps(context) {
   return {
     props: {
       data,
-      url,
       token: req.cookies.token,
       user
     }
