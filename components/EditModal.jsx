@@ -18,9 +18,6 @@ import {
 } from "@mui/material";
 
 const customStyles = {
-  overlay: {
-    overflowY: 'auto'
-  },
   content: {
     top: "50%",
     left: "50%",
@@ -29,7 +26,8 @@ const customStyles = {
     marginRight: "-50%",
     transform: "translate(-50%, -50%)",
     padding: "10px",
-    maxWidth: '80%',
+    maxWidth: '90%',
+    maxHeight: '90%',
   },
 };
 
@@ -346,7 +344,7 @@ function EditModal({ editModal, setEditModal, tagColors, tags, getContrastingCol
           />
         </Modal>
         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-          <List sx={{ py: 1, display: 'flex', flexDirection: 'row', gap: '20px', flexWrap: 'wrap' }}>
+          <List sx={{ py: 1, display: 'flex', flexDirection: 'row', gap: '5px 20px', flexWrap: 'wrap' }}>
             {modalTags.map((tag) => {
               const tagStyle =
                 tag.color ? { tag: '#' + tag.color, text: getContrastingColor(tag.color) }

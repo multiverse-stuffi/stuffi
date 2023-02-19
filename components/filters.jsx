@@ -112,7 +112,7 @@ function Filters({ getContrastingColor, tags, filterMode, setFilterMode, setFilt
                 </Box>
                 <Box sx={{ display: filtersExpanded ? 'flex' : 'none' }}>
                     <Box sx={{ width: '80%' }}>
-                        <List sx={{ py: 1, display: 'flex', flexDirection: 'row', gap: '20px', width: '100%', flexWrap: 'wrap' }}>
+                        <List sx={{ py: 1, display: 'flex', flexDirection: 'row', gap: '5px 20px', width: '100%', flexWrap: 'wrap' }}>
                             {tags.map((tag) => {
                                 const tagStyle =
                                     tag.color ? { tag: '#' + tag.color, text: getContrastingColor(tag.color) }
