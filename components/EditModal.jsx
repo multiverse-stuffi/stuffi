@@ -205,9 +205,10 @@ function EditModal({ editModal, setEditModal, tagColors, tags, getContrastingCol
     }
     for (const tag of modalTags) {
       const add = itemTags.some(i => i.tagId == tag.id);
+      const alreadyAdded = editModal.tags.some(i => i.tagId == tag.id);
       if (!tag.hasOwnProperty('initialVal') || tag.initialVal === add) continue;
       await fetch(`/api/item/${editModal.id}/tag/${tag.id}`, {
-        method: add ? "POST" : "DELETE",
+        method: add ? (alreadyAdded ? "PUT" : "POST") : "DELETE",
         body: JSON.stringify(add ? { value: itemTags.filter(i => i.tagId == tag.id)[0].value } : {}),
         headers: { Cookie }
       });
