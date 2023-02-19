@@ -5,7 +5,7 @@ import prisma from '../../../../lib/prisma';
 export default async function handler(req, res) {
     if (req.method === 'POST') {
         req.body = JSON.parse(req.body);
-        const username = req.body.username ? req.body.username.trim() :  null;
+        const username = req.body.username ? req.body.username.trim() : null;
         const password = req.body.password ? req.body.password.trim() : null;
         if (!username || !password) {
             res.status(400).send('Username and password required');
@@ -15,14 +15,14 @@ export default async function handler(req, res) {
             res.status(400).send('Password must be at least 8 characters and contain uppercase, lowercase, number, and special character');
             return;
         }
-        const db_user = await prisma.user.findUnique({where: {username}});
+        const db_user = await prisma.user.findUnique({ where: { username } });
         if (db_user) {
             res.status(400).send('This username is taken');
             return;
         }
 
         try {
-            bcrypt.hash(password, 10, async function(err, hash) {
+            bcrypt.hash(password, 10, async function (err, hash) {
                 const user = await prisma.user.create({
                     data: {
                         username,
@@ -31,7 +31,9 @@ export default async function handler(req, res) {
                 });
                 delete user.password;
                 const token = await jwt.sign(user, process.env.JWT_SECRET);
-                res.status(200).setHeader("Set-Cookie", `token=${token}; Path=/`).json(user);
+                const date = new Date();
+                date.setFullYear(date.getFullYear() + 1);
+                res.status(200).setHeader("Set-Cookie", `token=${token}; Path=/; Expires=${date.toUTCString()}`).json(user);
             });
         } catch (e) {
             console.log(e);
