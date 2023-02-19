@@ -26,7 +26,7 @@ export default async function handler(req, res) {
             res.status(400).send('New password must be at least 8 characters and contain uppercase, lowercase, number, and special character');
             return;
         }
-        if (req.cookies.token) jwt.verify(req.cookies.token, process.env.JWT_SECRET, async function(err, decoded) {
+        if (req.cookies.token) await jwt.verify(req.cookies.token, process.env.JWT_SECRET, async function(err, decoded) {
             try {
                 const id = decoded.id;
                 if (id !== queryId) {

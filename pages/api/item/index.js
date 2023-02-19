@@ -16,7 +16,7 @@ export default async function handler(req, res) {
             return;
         }
 
-        if (req.cookies.token) jwt.verify(req.cookies.token, process.env.JWT_SECRET, async function (err, decoded) {
+        if (req.cookies.token) await jwt.verify(req.cookies.token, process.env.JWT_SECRET, async function (err, decoded) {
             if (!decoded.id) {
                 res.status(403).send('Not Authorized');
                 return;
@@ -78,7 +78,7 @@ export default async function handler(req, res) {
         });
         else res.status(403).send('Not Authorized');
     } else if (req.method === 'GET') {
-        if (req.cookies.token) jwt.verify(req.cookies.token, process.env.JWT_SECRET, async function(err, decoded) {
+        if (req.cookies.token) await jwt.verify(req.cookies.token, process.env.JWT_SECRET, async function(err, decoded) {
             if (!decoded.id) {
                 res.status(403).send('Not Authorized');
                 return;

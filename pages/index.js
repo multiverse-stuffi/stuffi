@@ -5,6 +5,7 @@ import Header from "../components/header";
 import Filters from "../components/filters";
 import { getCookies, getCookie } from 'cookies-next';
 import EditModal from "@/components/EditModal";
+import prisma from '../lib/prisma';
 const jwt = require('jsonwebtoken');
 
 function Home({ data, url, token, user }) {
@@ -158,14 +159,38 @@ export async function getServerSideProps(context) {
       user
     }
   };
-  const itemsRes = await fetch(`http://${url}/api/item`, { headers: { Cookie: req.headers.cookie } });
   const data = {};
-  data.items = itemsRes.ok ? await itemsRes.json() : [];
-  const tagsRes = await fetch(`http://${url}/api/tag`, { headers: { Cookie: req.headers.cookie } });
-  data.tags = tagsRes.ok ? await tagsRes.json() : [];
-  jwt.verify(req.cookies.token, process.env.JWT_SECRET, function (err, decoded) {
+  await jwt.verify(req.cookies.token, process.env.JWT_SECRET, async function (err, decoded) {
+    if (!decoded.id) {
+      data.items = [];
+      data.tags = [];
+      return;
+    }
+    const items = await prisma.item.findMany({
+      where: {
+        userId: decoded.id
+      },
+      include: {
+        tags: {
+          include: {
+            Tag: true
+          }
+        }
+      },
+      orderBy: {
+        tags: {
+          _count: 'desc'
+        }
+      }
+    });
+    data.items = items;
+    const tags = await prisma.tag.findMany({
+      where: {
+        userId: decoded.id
+      }
+    });
+    data.tags = tags;
     user = decoded;
-    delete user.iat;
   });
   return {
     props: {

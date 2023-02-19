@@ -20,7 +20,7 @@ export default async function handler(req, res) {
             return;
         }
 
-        if (req.cookies.token) jwt.verify(req.cookies.token, process.env.JWT_SECRET, async function (err, decoded) {
+        if (req.cookies.token) await jwt.verify(req.cookies.token, process.env.JWT_SECRET, async function (err, decoded) {
             if (!decoded.id) {
                 res.status(403).send('Not Authorized');
                 return;
@@ -63,7 +63,7 @@ export default async function handler(req, res) {
             return;
         } else id = Number(req.query.id);
 
-        if (req.cookies.token) jwt.verify(req.cookies.token, process.env.JWT_SECRET, async function(err, decoded) {
+        if (req.cookies.token) await jwt.verify(req.cookies.token, process.env.JWT_SECRET, async function(err, decoded) {
             if (!decoded.id) {
                 res.status(403).send('Not Authorized');
                 return;
@@ -95,7 +95,7 @@ export default async function handler(req, res) {
         }
         const id = Number(req.query.id);
 
-        if (req.cookies.token) jwt.verify(req.cookies.token, process.env.JWT_SECRET, async function(err, decoded) {
+        if (req.cookies.token) await jwt.verify(req.cookies.token, process.env.JWT_SECRET, async function(err, decoded) {
             try {
                 if (!decoded.id) {
                     res.status(403).send('Not Authorized');

@@ -65,6 +65,11 @@ function EditModal({ editModal, setEditModal, tagColors, tags, getContrastingCol
   const [imgError, setImgError] = useState(false);
   const [tagError, setTagError] = useState(false);
   const [colorError, setColorError] = useState(false);
+  const resetInitialVals = useCallback(() => {
+    for (const tag of modalTags) {
+      delete tag.initialVal;
+    }
+  }, [modalTags]);
   useEffect(() => {
     setItem(editModal ? editModal.item : '');
     setDescription(editModal ? editModal.description : '');
@@ -93,11 +98,6 @@ function EditModal({ editModal, setEditModal, tagColors, tags, getContrastingCol
   useEffect(createTagRefs, [modalTags]);
   useEffect(() => { if (!allowPreview) setShowPreview(false); }, [allowPreview]);
   useEffect(() => { setModalTags(tags); }, [tags, editModal]);
-  const resetInitialVals = useCallback(() => {
-    for (const tag of modalTags) {
-      delete tag.initialVal;
-    }
-  }, [modalTags]);
   function closeModal() {
     setEditModal(false);
   }
