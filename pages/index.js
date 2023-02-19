@@ -148,6 +148,7 @@ function getContrastingColor(backgroundColor) {
 }
 
 export async function getServerSideProps(context) {
+  console.log(process.env, process.env.JWT_SECRET);
   const { req } = context;
   const url = `${process.env.HOST}${process.env.PORT ? ':' + process.env.PORT : ''}`;
   let user = { username: null, id: null };
