@@ -5,6 +5,7 @@ import Header from "../components/header";
 import Filters from "../components/filters";
 import { getCookies, getCookie } from 'cookies-next';
 import EditModal from "@/components/EditModal";
+import DeleteModal from "@/components/DeleteModal";
 import prisma from '../lib/prisma';
 const jwt = require('jsonwebtoken');
 
@@ -20,6 +21,7 @@ function Home({ data, token, user }) {
   const [sort, setSort] = useState(0);
   const [sortMode, setSortMode] = useState('desc');
   const [editModal, setEditModal] = useState(false)
+  const [deleteModal, setDeleteModal] = useState(false);
   const boxStyles = {
     display: 'flex',
     flexWrap: 'wrap',
@@ -127,9 +129,10 @@ function Home({ data, token, user }) {
       <Header username={username} setUsername={setUsername} userId={user.id} refreshData={refreshData} setEditModal={setEditModal} isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />
       {isLoggedIn && <Filters setEditModal={setEditModal} sort={sort} setSort={setSort} sortMode={sortMode} setSortMode={setSortMode} tagColors={tagColors} tags={tags} getContrastingColor={getContrastingColor} filters={filters} setFilters={setFilters} filterMode={filterMode} setFilterMode={setFilterMode} />}
       <EditModal setItems={setItems} items={items} setTags={setTags} tags={tags} tagColors={tagColors} editModal={editModal} setEditModal={setEditModal} getContrastingColor={getContrastingColor} />
+      <DeleteModal items={items} setItems={setItems} deleteModal={deleteModal} setDeleteModal={setDeleteModal} />
       <Box sx={boxStyles}>
         {sortedItems.map(item => (
-          <StuffCard tagColors={tagColors} getContrastingColor={getContrastingColor} key={item.id} item={item} setEditModal={setEditModal} />
+          <StuffCard tagColors={tagColors} getContrastingColor={getContrastingColor} key={item.id} item={item} setEditModal={setEditModal} setDeleteModal={setDeleteModal} />
         ))}
       </Box>
     </>

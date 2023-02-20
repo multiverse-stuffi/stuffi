@@ -99,12 +99,11 @@ function EditModal({ editModal, setEditModal, tagColors, tags, getContrastingCol
     img.onerror = () => { setAllowPreview(false) };
     img.src = imageSrc;
   }
-  const handleTag = (tagId, fromCheck=true) => {
+  const handleTag = (tagId) => {
     let newTags = [...itemTags]; // Copy what we currently have
     let done = false;
-    let Tag;
+    const Tag = modalTags.filter(tag => tag.id === tagId)[0];
     for (let i = 0; i < newTags.length; i++) { // Loop through our copy
-      Tag = modalTags.filter(tag => tag.id === tagId)[0];
       if (newTags[i].tagId !== tagId) continue; // Skip it if it is not the tag we just modified
       if (refs.current[tagId].check.current.checked) {
         newTags[i] = { // If we get here, that means we found the tag we just changed. If the box is checked, let's update it to reflect the current values we entered (checkbox, number field)
@@ -160,7 +159,7 @@ function EditModal({ editModal, setEditModal, tagColors, tags, getContrastingCol
       setItemError(true);
       return;
     }
-    if (imgUrl.trim() && !allowPreview) {
+    if (imgUrl && imgUrl.trim() && !allowPreview) {
       setImgError(true);
       return;
     }
@@ -385,7 +384,7 @@ function EditModal({ editModal, setEditModal, tagColors, tags, getContrastingCol
                             MozAppearance: "textfield",
                           },
                         }}
-                        onChange={() => { handleTag(tag.id, false) }}
+                        onChange={() => { handleTag(tag.id) }}
                         value={itemTags.filter(i => tag.id > 0 ? i.tagId == tag.id : i.Tag.tag == tag.tag)[0]?.value}
                         inputProps={{
                           ref: refs.current[tag.id].val
