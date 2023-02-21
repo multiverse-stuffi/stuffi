@@ -77,13 +77,13 @@ function Filters({ getContrastingColor, tags, filterMode, setFilterMode, setFilt
     };
 
     return (
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', margin: '25px', gap: '20px' }}>
-            <Box sx={{height: 'fit-content', mt: '2px'}}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', margin: '25px', gap: '20px', '@media(max-width: 780px)': {flexDirection: 'column'} }}>
+            <Box sx={{height: 'fit-content', mt: '2px', '@media(max-width: 780px)': {textAlign: 'center'}}}>
                 <IconButton onClick={() => {setEditModal({item: '', description: '', url: '', imgUrl: '', tags: []})}}>
-                    <AddBoxOutlined/>
+                    <AddBoxOutlined sx={{'@media(max-width: 780px)': {mr: '10px'}}}/> <Typography sx={{display: 'none', '@media(max-width: 780px)': {display: 'unset'}}}>Add Item</Typography>
                 </IconButton>
             </Box>
-            <Box sx={{ display: "flex", flexDirection: "column", border: '1px solid #91AEC1', borderRadius: '8px', overflow: 'hidden', width: '75%', height: 'fit-content' }}>
+            <Box sx={{ display: "flex", flexDirection: "column", border: '1px solid #91AEC1', borderRadius: '8px', overflow: 'hidden', width: '75%', height: 'fit-content', '@media(max-width: 780px)': {width: '100%'} }}>
                 <Box
                     sx={{
                         display: "flex",
@@ -193,7 +193,7 @@ function Filters({ getContrastingColor, tags, filterMode, setFilterMode, setFilt
                     </Box>
                 </Box>
             </Box>
-            <Box sx={{ display: "flex", flexDirection: "column", border: '1px solid #91AEC1', borderRadius: '8px', overflow: 'hidden', width: '25%', height: 'fit-content' }}>
+            <Box sx={{ display: "flex", flexDirection: "column", border: '1px solid #91AEC1', borderRadius: '8px', overflow: 'hidden', width: '25%', height: 'fit-content', '@media(max-width: 780px)': {width: '100%'} }}>
                 <Box
                     sx={{
                         display: "flex",
