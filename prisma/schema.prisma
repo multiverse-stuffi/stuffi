@@ -7,6 +7,82 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Account {
+  id                Int @id @default(autoincrement())
+  userId            Int @unique @map(name: "user_id")
+  type              String
+  provider          String
+  providerAccountId String @map(name: "provider_account_id")
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+  refresh_token_expires_in Int?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([providerAccountId], name: "providerAccountId")
+  @@index([provider], name: "provider")
+  @@index([userId], name: "userId")
+
+  @@unique([provider, providerAccountId])
+
+  @@map(name: "accounts")
+}
+
+model Session {
+  id           Int   @id @default(autoincrement())
+  sessionToken String    @unique @map(name: "session_token")
+  accessToken  String    @unique @map(name: "access_token")
+  userId       Int  @unique @map(name: "user_id")
+  expires      DateTime
+  createdAt    DateTime @default(now()) @map(name: "created_at")
+  updatedAt    DateTime @default(now()) @map(name: "updated_at")
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map(name: "sessions")
+}
+
+model User {
+  id            Int    @id @map(name: "PK__User__3213E83FCDEEF82E") @default(autoincrement())
+  username      String     @unique(map: "UQ__User__F3DBC572D9BCE399") @db.VarChar(255)
+  password      String?    @db.VarChar(255)
+  Item          Item[]
+  Tag           Tag[]
+  name          String?
+  email         String?    @unique
+  emailVerified DateTime? @map(name: "email_verified")
+  image         String?
+  createdAt     DateTime   @default(now()) @map(name: "created_at")
+  updatedAt     DateTime   @default(now()) @map(name: "updated_at")
+  accounts      Account[]
+  sessions      Session[]
+
+  @@map(name: "users")
+}
+
+model VerificationRequest {
+  id Int @id @default(autoincrement())
+  identifier String
+  token      String    @unique
+  expires    DateTime
+  createdAt  DateTime  @default(now()) @map(name: "created_at")
+  updatedAt  DateTime  @default(now()) @map(name: "updated_at")
+
+  @@map(name: "verification_requests")
+}
+
+model VerificationToken {
+  identifier String
+  token      String    @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
 model Item {
   id          Int       @id(map: "PK__Item__3213E83F08ABBE67") @default(autoincrement())
   item        String    @db.NVarChar(255)
@@ -35,12 +111,4 @@ model Tag {
   userId     Int
   ItemTag    ItemTag[]
   User       User      @relation(fields: [userId], references: [id], onUpdate: NoAction, map: "FK__Tag__userId__619B8048")
-}
-
-model User {
-  id       Int     @id(map: "PK__User__3213E83FCDEEF82E") @default(autoincrement())
-  username String  @unique(map: "UQ__User__F3DBC572D9BCE399") @db.VarChar(255)
-  password String? @db.VarChar(255)
-  Item     Item[]
-  Tag      Tag[]
 }
