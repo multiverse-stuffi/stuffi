@@ -64,6 +64,7 @@ function EditModal({ editModal, setEditModal, tagColors, tags, getContrastingCol
   const [tagError, setTagError] = useState(false);
   const [colorError, setColorError] = useState(false);
   const [urlError, setUrlError] = useState(false);
+  const [descriptionError, setDescriptionError] = useState(false);
   useEffect(() => {
     setItem(editModal ? editModal.item : '');
     setDescription(editModal ? editModal.description : '');
@@ -74,6 +75,7 @@ function EditModal({ editModal, setEditModal, tagColors, tags, getContrastingCol
     setItemError(false);
     setImgError(false);
     setUrlError(false);
+    setDescriptionError(false);
     document.body.style.overflow = editModal ? 'hidden' : 'unset';
   }, [editModal])
   const refs = useRef({});
@@ -158,7 +160,15 @@ function EditModal({ editModal, setEditModal, tagColors, tags, getContrastingCol
   }
   const submitHandler = async () => {
     if (!item.trim()) {
-      setItemError(true);
+      setItemError('Title required');
+      return;
+    }
+    if (item.trim().length > 255) {
+      setItemError('Maximum length is 255 characters');
+      return;
+    }
+    if (description && description.trim().length > 510) {
+      setDescriptionError(true);
       return;
     }
     if (url && url.trim().length > 510) {
@@ -290,7 +300,7 @@ function EditModal({ editModal, setEditModal, tagColors, tags, getContrastingCol
               setItem(e.target.value);
             }}
             error={itemError}
-            helperText={itemError ? 'Title required' : null}
+            helperText={itemError ? itemError : null}
           />
           <TextField
             label="Description"
@@ -298,8 +308,11 @@ function EditModal({ editModal, setEditModal, tagColors, tags, getContrastingCol
             multiline
             minRows={2}
             onChange={(e) => {
+              setDescriptionError(false);
               setDescription(e.target.value);
             }}
+            error={descriptionError}
+            helperText={descriptionError ? 'Maximum length is 510 characters' : null}
           />
           <TextField
             label="Link"
