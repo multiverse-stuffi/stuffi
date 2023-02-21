@@ -63,6 +63,7 @@ function EditModal({ editModal, setEditModal, tagColors, tags, getContrastingCol
   const [imgError, setImgError] = useState(false);
   const [tagError, setTagError] = useState(false);
   const [colorError, setColorError] = useState(false);
+  const [urlError, setUrlError] = useState(false);
   useEffect(() => {
     setItem(editModal ? editModal.item : '');
     setDescription(editModal ? editModal.description : '');
@@ -72,6 +73,7 @@ function EditModal({ editModal, setEditModal, tagColors, tags, getContrastingCol
     setIsNew(editModal ? !editModal.id : null)
     setItemError(false);
     setImgError(false);
+    setUrlError(false);
     document.body.style.overflow = editModal ? 'hidden' : 'unset';
   }, [editModal])
   const refs = useRef({});
@@ -159,8 +161,16 @@ function EditModal({ editModal, setEditModal, tagColors, tags, getContrastingCol
       setItemError(true);
       return;
     }
+    if (url && url.trim().length > 510) {
+      setUrlError(true);
+      return;
+    }
     if (imgUrl && imgUrl.trim() && !allowPreview) {
-      setImgError(true);
+      setImgError('Invalid image url');
+      return;
+    }
+    if (imgUrl && imgUrl.trim().length > 510) {
+      setImgError('Maximum url length is 510 characters. Try using a url shortener.');
       return;
     }
     const Cookie = getCookies();
@@ -295,8 +305,11 @@ function EditModal({ editModal, setEditModal, tagColors, tags, getContrastingCol
             label="Link"
             value={url}
             onChange={(e) => {
+              setUrlError(false);
               setUrl(e.target.value);
             }}
+            error={urlError}
+            helperText={urlError ? 'Maximum length is 510 characters. Try a using a url shortener.' : null}
           />
           <TextField
             label="Image Link"
@@ -309,7 +322,7 @@ function EditModal({ editModal, setEditModal, tagColors, tags, getContrastingCol
               } else setAllowPreview(false);
             }}
             error={imgError}
-            helperText={imgError ? 'Invalid image url' : null}
+            helperText={imgError ? imgError : null}
           />
         </Box>
         {allowPreview && (
