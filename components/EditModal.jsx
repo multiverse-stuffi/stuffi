@@ -77,6 +77,7 @@ function EditModal({ editModal, setEditModal, tagColors, tags, getContrastingCol
     setImgError(false);
     setUrlError(false);
     setDescriptionError(false);
+    setDoGenerate(false);
     document.body.style.overflow = editModal ? 'hidden' : 'unset';
   }, [editModal])
   const refs = useRef({});
