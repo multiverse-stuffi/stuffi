@@ -65,6 +65,7 @@ function EditModal({ editModal, setEditModal, tagColors, tags, getContrastingCol
   const [colorError, setColorError] = useState(false);
   const [urlError, setUrlError] = useState(false);
   const [descriptionError, setDescriptionError] = useState(false);
+  const [doGenerate, setDoGenerate] = useState(false);
   useEffect(() => {
     setItem(editModal ? editModal.item : '');
     setDescription(editModal ? editModal.description : '');
@@ -186,7 +187,7 @@ function EditModal({ editModal, setEditModal, tagColors, tags, getContrastingCol
     const Cookie = getCookies();
     const itemRes = await fetch(`/api/item/${isNew ? '' : editModal.id}`, {
       method: isNew ? "POST" : "PUT",
-      body: JSON.stringify({ item, description, url, imgUrl }),
+      body: JSON.stringify({ item, description, url, imgUrl, doGenerate }),
       headers: { Cookie }
     });
     let dbItem;
@@ -337,6 +338,12 @@ function EditModal({ editModal, setEditModal, tagColors, tags, getContrastingCol
             error={imgError}
             helperText={imgError ? imgError : null}
           />
+          {isNew && !imgUrl.trim() && (
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <Checkbox checked={doGenerate} onChange={(e) => { setDoGenerate(e.target.checked) }} sx={{ width: 'fit-content' }} />
+              <FormLabel>Generate image from description or title</FormLabel>
+            </Box>
+          )}
         </Box>
         {allowPreview && (
           <Typography
