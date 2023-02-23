@@ -10,30 +10,35 @@ datasource db {
 model Item {
   id          Int       @id(map: "PK__Item__3213E83F08ABBE67") @default(autoincrement())
   item        String    @db.NVarChar(255)
-  imgUrl      String?   @db.VarChar(510)
+  imgUrl      String?   @db.VarChar(510) @map("img_url")
   description String?   @db.NVarChar(510)
   url         String?   @db.VarChar(510)
-  userId      Int
+  userId      Int @map("user_id")
+  price       Int
+  createdAt   DateTime  @default(now()) @map("created_at")
   User        User      @relation(fields: [userId], references: [id], onUpdate: NoAction, map: "FK__Item__userId__60A75C0F")
   tags        ItemTag[]
+  @@map("Items")
 }
 
 model ItemTag {
   id     Int   @id(map: "PK__ItemTag__3213E83F6FCAE958") @default(autoincrement())
-  itemId Int
-  tagId  Int
+  itemId Int @map("item_id")
+  tagId  Int @map("tag_id")
   value  Int?
   Item   Item @relation(fields: [itemId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK__ItemTag__itemId__5EBF139D")
   Tag    Tag  @relation(fields: [tagId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK__ItemTag__tagId__5FB337D6")
+  @@map("Item_Tags")
 }
+
 
 model Tag {
   id         Int       @id(map: "PK__Tag__3213E83FB8393F8C") @default(autoincrement())
   tag        String    @db.NVarChar(255)
   isVariable Boolean   @default(false, map: "DF__Tag__isVariable__5BE2A6F2")
   color      String?   @db.Char(6)
-  userId     Int
-  ItemTag    ItemTag[]
+  userId     Int     @map("user_id")
+  ItemTag    ItemTag[] @relation(map: "Item_Tag")
   User       User      @relation(fields: [userId], references: [id], onUpdate: NoAction, map: "FK__Tag__userId__619B8048")
 }
 
@@ -41,6 +46,11 @@ model User {
   id       Int     @id(map: "PK__User__3213E83FCDEEF82E") @default(autoincrement())
   username String  @unique(map: "UQ__User__F3DBC572D9BCE399") @db.VarChar(255)
   password String? @db.VarChar(255)
-  Item     Item[]
-  Tag      Tag[]
+  email    String  @unique
+  stripeId String  @unique @map("stripe_id")
+  createdAt DateTime @default(now()) @map("created_at")
+  isSubscribed Boolean @default(false) @map("is_subscribed")
+  items    Item[]
+  tags      Tag[]
+@@map("Users")
 }
