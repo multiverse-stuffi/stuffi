@@ -66,6 +66,7 @@ function EditModal({ editModal, setEditModal, tagColors, tags, getContrastingCol
   const [urlError, setUrlError] = useState(false);
   const [descriptionError, setDescriptionError] = useState(false);
   const [doGenerate, setDoGenerate] = useState(false);
+
   useEffect(() => {
     setItem(editModal ? editModal.item : '');
     setDescription(editModal ? editModal.description : '');
@@ -80,6 +81,7 @@ function EditModal({ editModal, setEditModal, tagColors, tags, getContrastingCol
     setDoGenerate(false);
     document.body.style.overflow = editModal ? 'hidden' : 'unset';
   }, [editModal])
+
   const refs = useRef({});
   function createTagRefs() {
     const newRefs = { ...refs.current };

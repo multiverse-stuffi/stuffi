@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-import prisma from '../../../../lib/prisma';
+import prisma from '@/lib/prisma';
 
 export default async function handler(req, res) {
     if (req.method === 'PUT') {
@@ -14,7 +14,7 @@ export default async function handler(req, res) {
             res.status(400).send('ID must be a number');
             return;
         } else id = Number(req.query.id);
-        
+
         if (!item) {
             res.status(400).send('Name required');
             return;
@@ -52,7 +52,7 @@ export default async function handler(req, res) {
                 console.log(e);
                 res.status(500).send('Server Error');
             }
-            
+
         });
         else res.status(403).send('Not Authorized');
     } else if (req.method === 'GET') {
@@ -68,7 +68,7 @@ export default async function handler(req, res) {
                 res.status(403).send('Not Authorized');
                 return;
             }
-            
+
             const item = await prisma.item.findUnique({
                 where: {
                     id
@@ -84,7 +84,7 @@ export default async function handler(req, res) {
                 res.status(403).send('Not Authorized');
                 return;
             }
-            
+
             res.status(200).json(item);
         });
         else res.status(403).send('Not Authorized');
@@ -101,23 +101,23 @@ export default async function handler(req, res) {
                     res.status(403).send('Not Authorized');
                     return;
                 }
-    
+
                 const item = await prisma.item.findUnique({
                     where: {
                         id
                     }
                 });
-    
+
                 if (!item) {
                     res.status(400).send('Invalid ID');
                     return;
                 }
-    
+
                 if (item.userId !== decoded.id) {
                     res.status(403).send('Not Authorized');
                     return;
                 }
-    
+
                 await prisma.item.delete({
                     where: {
                         id

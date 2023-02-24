@@ -1,7 +1,7 @@
-import { deleteCookie } from "cookies-next";
-import { useState } from "react";
-import Modal from "react-modal";
-import { Close } from "@mui/icons-material";
+import { deleteCookie } from 'cookies-next';
+import { useState } from 'react';
+import Modal from 'react-modal';
+import { Close } from '@mui/icons-material';
 import {
   Typography,
   TextField,
@@ -10,31 +10,31 @@ import {
   List,
   ListItem,
   ListItemText,
-} from "@mui/material";
+} from '@mui/material';
 
 const customStyles = {
   content: {
-    top: "50%",
-    left: "50%",
-    right: "auto",
-    bottom: "auto",
-    marginRight: "-50%",
-    transform: "translate(-50%, -50%)",
-    padding: "10px",
+    top: '50%',
+    left: '50%',
+    right: 'auto',
+    bottom: 'auto',
+    marginRight: '-50%',
+    transform: 'translate(-50%, -50%)',
+    padding: '10px',
   },
 };
 
 const buttonStyles = {
-  width: "min-content",
-  whiteSpace: "nowrap",
-  backgroundColor: "#508CA4",
-  color: "#fff",
-  "&:hover": {
-    backgroundColor: "#91AEC1",
+  width: 'min-content',
+  whiteSpace: 'nowrap',
+  backgroundColor: '#508CA4',
+  color: '#fff',
+  '&:hover': {
+    backgroundColor: '#91AEC1',
   },
 };
 
-Modal.setAppElement("#__next");
+Modal.setAppElement('#__next');
 
 function LogButton({
   refreshData,
@@ -51,12 +51,14 @@ function LogButton({
   };
 
   const [modalIsOpen, setIsOpen] = useState(!isLoggedIn);
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [errorText, setErrorText] = useState("");
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [errorText, setErrorText] = useState('');
   const [isNew, setIsNew] = useState(false);
-  const [passwordRules, setPasswordRules] = useState(defaultPasswordRules);
+  const [passwordRules, setPasswordRules] = useState(
+    defaultPasswordRules
+  );
 
   function openModal() {
     setIsOpen(true);
@@ -65,16 +67,16 @@ function LogButton({
   function closeModal() {
     setIsOpen(false);
     setIsNew(false);
-    setUsername("");
-    setPassword("");
-    setConfirmPassword("");
-    setErrorText("");
+    setUsername('');
+    setPassword('');
+    setConfirmPassword('');
+    setErrorText('');
     setPasswordRules(defaultPasswordRules);
   }
 
   const clickHandler = () => {
     if (isLoggedIn) {
-      deleteCookie("token");
+      deleteCookie('token');
       setIsLoggedIn(false);
       refreshData();
     } else {
@@ -90,24 +92,27 @@ function LogButton({
         !password.trim() ||
         !Object.values(passwordRules).every((i) => i))
     ) {
-      setErrorText("Username and valid password required");
+      setErrorText('Username and valid password required');
       return;
     }
     if (isNew && password !== confirmPassword) {
-      setErrorText("Passwords do not match");
+      setErrorText('Passwords do not match');
       return;
     }
-    const res = await fetch(`/api/user/${isNew ? "signup" : "login"}`, {
-      method: "POST",
-      body: JSON.stringify({ username, password }),
-    });
+    const res = await fetch(
+      `/api/auth/${isNew ? 'signIn' : 'signIn'}`,
+      {
+        method: 'POST',
+        body: JSON.stringify({ username, password }),
+      }
+    );
     if (res.ok) {
       const user = await res.json();
       setHeaderUsername(user.username);
       setIsLoggedIn(true);
       refreshData();
       closeModal();
-    } else setErrorText("Incorrect username/password");
+    } else setErrorText('Incorrect username/password');
   };
 
   const updatePasswordRules = (curPassword) => {
@@ -124,110 +129,105 @@ function LogButton({
   return (
     <>
       <Button
-        variant="contained"
+        variant='contained'
         disableElevation
         onClick={clickHandler}
-        sx={buttonStyles}
-      >
-        {isLoggedIn ? "Log out" : "Log in"}
+        sx={buttonStyles}>
+        {isLoggedIn ? 'Log out' : 'Log in'}
       </Button>
       <Modal
         isOpen={modalIsOpen}
         style={customStyles}
-        contentLabel="Log In Modal"
-        onRequestClose={closeModal}
-      >
-        <form className="modal" onSubmit={logInHandler}>
-          <div className="right">
+        contentLabel='Log In Modal'
+        onRequestClose={closeModal}>
+        <form className='modal' onSubmit={logInHandler}>
+          <div className='right'>
             <IconButton onClick={closeModal}>
               <Close />
             </IconButton>
           </div>
           <TextField
-            label="Username"
+            label='Username'
             value={username}
-            name="username"
+            name='username'
             onChange={(ev) => {
               setUsername(ev.target.value);
-              setErrorText("");
+              setErrorText('');
             }}
           />
           <TextField
-            label="Password"
+            label='Password'
             value={password}
-            name="password"
+            name='password'
             onChange={(ev) => {
               setPassword(ev.target.value);
-              setErrorText("");
+              setErrorText('');
               updatePasswordRules(ev.target.value);
             }}
-            type="password"
+            type='password'
           />
-          <List className={isNew ? "" : "hidden"}>
+          <List className={isNew ? '' : 'hidden'}>
             <ListItem
-              className={passwordRules.length ? "success" : "error"}
-              sx={{ p: 0 }}
-            >
-              <ListItemText primary="At least 8 characters" />
+              className={passwordRules.length ? 'success' : 'error'}
+              sx={{ p: 0 }}>
+              <ListItemText primary='At least 8 characters' />
             </ListItem>
             <ListItem
-              className={passwordRules.lowercase ? "success" : "error"}
-              sx={{ p: 0 }}
-            >
-              <ListItemText primary="Contains a lowercase letter" />
+              className={
+                passwordRules.lowercase ? 'success' : 'error'
+              }
+              sx={{ p: 0 }}>
+              <ListItemText primary='Contains a lowercase letter' />
             </ListItem>
             <ListItem
-              className={passwordRules.uppercase ? "success" : "error"}
-              sx={{ p: 0 }}
-            >
-              <ListItemText primary="Contains an uppercase letter" />
+              className={
+                passwordRules.uppercase ? 'success' : 'error'
+              }
+              sx={{ p: 0 }}>
+              <ListItemText primary='Contains an uppercase letter' />
             </ListItem>
             <ListItem
-              className={passwordRules.number ? "success" : "error"}
-              sx={{ p: 0 }}
-            >
-              <ListItemText primary="Contains a number" />
+              className={passwordRules.number ? 'success' : 'error'}
+              sx={{ p: 0 }}>
+              <ListItemText primary='Contains a number' />
             </ListItem>
             <ListItem
-              className={passwordRules.special ? "success" : "error"}
-              sx={{ p: 0 }}
-            >
-              <ListItemText primary="Contains a special character" />
+              className={passwordRules.special ? 'success' : 'error'}
+              sx={{ p: 0 }}>
+              <ListItemText primary='Contains a special character' />
             </ListItem>
           </List>
           {isNew ? (
             <TextField
-              label="Confirm Password"
+              label='Confirm Password'
               value={confirmPassword}
-              name="confirmPassword"
+              name='confirmPassword'
               onChange={(ev) => {
                 setConfirmPassword(ev.target.value);
-                setErrorText("");
+                setErrorText('');
               }}
-              type="password"
+              type='password'
             />
           ) : (
-            ""
+            ''
           )}
-          <span className={"error" + (!errorText ? " hidden" : "")}>
+          <span className={'error' + (!errorText ? ' hidden' : '')}>
             {errorText}
           </span>
           <Button
-            type="submit"
+            type='submit'
             sx={buttonStyles}
-            variant="contained"
-            disableElevation
-          >
-            {isNew ? "Sign up" : "Log in"}
+            variant='contained'
+            disableElevation>
+            {isNew ? 'Sign up' : 'Log in'}
           </Button>
           <Typography
-            className="clickable hover-underline"
-            sx={{ color: "#a9a9a9", marginTop: "3px" }}
+            className='clickable hover-underline'
+            sx={{ color: '#a9a9a9', marginTop: '3px' }}
             onClick={() => {
               setIsNew(!isNew);
-            }}
-          >
-            {isNew ? "Already have an account?" : "New here?"}
+            }}>
+            {isNew ? 'Already have an account?' : 'New here?'}
           </Typography>
         </form>
       </Modal>
