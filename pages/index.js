@@ -3,19 +3,18 @@ import StuffCard from "../components/card";
 import { Box } from '@mui/material';
 import Header from "../components/header";
 import Filters from "../components/filters";
-import { getCookies, getCookie } from "cookies-next";
+import { getCookies, getCookie } from 'cookies-next';
 import EditModal from "@/components/EditModal";
 import DeleteModal from "@/components/DeleteModal";
 import prisma from '../lib/prisma';
-const jwt = require("jsonwebtoken");
-import View from "@/components/View";
+const jwt = require('jsonwebtoken');
 
 function Home({ data, token, user }) {
   const [items, setItems] = useState(data.items);
   const [filteredItems, setFilteredItems] = useState(items);
   const [isLoggedIn, setIsLoggedIn] = useState(!!token);
   const [filters, setFilters] = useState([]);
-  const [filterMode, setFilterMode] = useState("or");
+  const [filterMode, setFilterMode] = useState('or');
   const [tags, setTags] = useState(data.tags);
   const [username, setUsername] = useState(user.username);
   const [sortedItems, setSortedItems] = useState(filteredItems);
@@ -36,7 +35,7 @@ function Home({ data, token, user }) {
       { tag: "#91aec1", text: "#fff" },
       { tag: "#508ca4", text: "#fff" },
       { tag: "#0a8754", text: "#fff" },
-      { tag: "#004f2d", text: "#fff" },
+      { tag: "#004f2d", text: "#fff" }
     ];
     for (const tag of tags) {
       if (!tag.color) newColors[tag.id] = samples[Math.floor(Math.random() * samples.length)];
@@ -48,7 +47,7 @@ function Home({ data, token, user }) {
     setTagColors(generateTagColors());
   }, [tags, generateTagColors]);
   const refreshData = async () => {
-    if (!getCookie("token")) {
+    if (!getCookie('token')) {
       setItems([]);
       return;
     }
@@ -80,81 +79,55 @@ function Home({ data, token, user }) {
     let or = false;
     let and = false;
     eval(`${filterMode}=true`);
-    if (or)
-      for (const item of items) {
+    if (or) for (const item of items) {
+      for (const tag of item.tags) {
+        if (checkTag(tag)) {
+          filtered.push(item);
+          break;
+        }
+      }
+    } else if (and) for (const item of items) {
+      let ok = true;
+      for (const filter of filters) {
+        let found = false;
         for (const tag of item.tags) {
-          if (checkTag(tag)) {
-            filtered.push(item);
+          if (checkTag(tag, filter)) {
+            found = true;
             break;
           }
         }
-      }
-    else if (and)
-      for (const item of items) {
-        let ok = true;
-        for (const filter of filters) {
-          let found = false;
-          for (const tag of item.tags) {
-            if (checkTag(tag, filter)) {
-              found = true;
-              break;
-            }
-          }
-          if (!found) {
-            ok = false;
-            break;
-          }
+        if (!found) {
+          ok = false;
+          break;
         }
-        if (ok) filtered.push(item);
       }
+      if (ok) filtered.push(item);
+    }
     setFilteredItems(filtered);
   }, [items, filters, filterMode, checkTag])
   useEffect(() => {
     const sorted = [...filteredItems];
     if (sort === 0) {
-      if (sortMode === "desc") setSortedItems(sorted);
-      else if (sortMode === "asc") setSortedItems(sorted.reverse());
+      if (sortMode === 'desc') setSortedItems(sorted);
+      else if (sortMode === 'asc') setSortedItems(sorted.reverse());
     } else {
       sorted.sort((a, b) => {
-        const tagA = a.tags.filter((i) => i.tagId == sort)[0];
-        const tagB = b.tags.filter((i) => i.tagId == sort)[0];
-        if (typeof tagA === "undefined" && typeof tagB === "undefined")
-          return 0;
-        if (typeof tagA === "undefined") return sortMode === "desc" ? 1 : -1;
-        if (typeof tagB === "undefined") return sortMode === "desc" ? -1 : 1;
+        const tagA = a.tags.filter(i => i.tagId == sort)[0];
+        const tagB = b.tags.filter(i => i.tagId == sort)[0];
+        if (typeof tagA === 'undefined' && typeof tagB === 'undefined') return 0;
+        if (typeof tagA === 'undefined') return (sortMode === 'desc' ? 1 : -1);
+        if (typeof tagB === 'undefined') return (sortMode === 'desc' ? -1 : 1);
         const valA = tagA.value;
         const valB = tagB.value;
-        return (valB - valA) * (sortMode === "desc" ? 1 : -1);
+        return (valB - valA) * (sortMode === 'desc' ? 1 : -1);
       });
       setSortedItems(sorted);
     }
-  }, [filteredItems, sort, sortMode]);
-
+  }, [filteredItems, sort, sortMode])
   return (
     <>
-      <Header
-        username={username}
-        setUsername={setUsername}
-        userId={user.id}
-        refreshData={refreshData}
-        isLoggedIn={isLoggedIn}
-        setIsLoggedIn={setIsLoggedIn}
-      />
-      {isLoggedIn && (
-        <Filters
-          sort={sort}
-          setSort={setSort}
-          sortMode={sortMode}
-          setSortMode={setSortMode}
-          tagColors={tagColors}
-          tags={tags}
-          getContrastingColor={getContrastingColor}
-          filters={filters}
-          setFilters={setFilters}
-          filterMode={filterMode}
-          setFilterMode={setFilterMode}
-        />
-      )}
+      <Header username={username} setUsername={setUsername} userId={user.id} refreshData={refreshData} setEditModal={setEditModal} isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />
+      {isLoggedIn && <Filters setEditModal={setEditModal} sort={sort} setSort={setSort} sortMode={sortMode} setSortMode={setSortMode} tagColors={tagColors} tags={tags} getContrastingColor={getContrastingColor} filters={filters} setFilters={setFilters} filterMode={filterMode} setFilterMode={setFilterMode} />}
       <EditModal setItems={setItems} items={items} setTags={setTags} tags={tags} tagColors={tagColors} editModal={editModal} setEditModal={setEditModal} getContrastingColor={getContrastingColor} />
       <DeleteModal items={items} setItems={setItems} deleteModal={deleteModal} setDeleteModal={setDeleteModal} />
       <Box sx={boxStyles}>
@@ -174,7 +147,7 @@ function getContrastingColor(backgroundColor) {
 
   // apply the luminosity contrast formula
   let luminosity = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
-  return luminosity > 0.5 ? "#000" : "#fff";
+  return luminosity > 0.5 ? '#000' : '#fff';
 }
 
 export async function getServerSideProps(context) {
@@ -224,8 +197,8 @@ export async function getServerSideProps(context) {
     props: {
       data,
       token: req.cookies.token,
-      user,
-    },
+      user
+    }
   };
 }
 
