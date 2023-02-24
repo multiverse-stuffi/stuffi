@@ -188,7 +188,7 @@ function EditModal({ editModal, setEditModal, tagColors, tags, getContrastingCol
       return;
     }
     const Cookie = getCookies();
-    const itemRes = await fetch(`/api/item/${isNew ? '' : editModal.id}`, {
+    const itemRes = await fetch(`/api/items/${isNew ? '' : editModal.id}`, {
       method: isNew ? "POST" : "PUT",
       body: JSON.stringify({ item, description, url, imgUrl, doGenerate }),
       headers: { Cookie }
@@ -221,7 +221,7 @@ function EditModal({ editModal, setEditModal, tagColors, tags, getContrastingCol
       const add = itemTags.filter(i => i.tagId == tag.id)[0];
       const originalTag = editModal.tags.filter(i => i.tagId == tag.id)[0];
       if (!!originalTag === !!add && add?.value === originalTag?.value) continue;
-      await fetch(`/api/item/${editModal.id}/tag/${tag.id}`, {
+      await fetch(`/api/items/${editModal.id}/tag/${tag.id}`, {
         method: add ? (originalTag ? "PUT" : "POST") : "DELETE",
         body: JSON.stringify(add ? { value: itemTags.filter(i => i.tagId == tag.id)[0].value } : {}),
         headers: { Cookie }
