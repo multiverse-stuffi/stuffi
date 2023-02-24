@@ -1,4 +1,5 @@
 import React from "react";
+import { useState } from "react";
 import Edit from "@mui/icons-material/Edit";
 import { Link } from "@mui/icons-material";
 import Box from "@mui/material/Box";
@@ -8,6 +9,7 @@ import CardActions from "@mui/material/CardActions";
 import Typography from "@mui/material/Typography";
 import IconButton from "@mui/material/IconButton";
 import Card from "@mui/material/Card";
+import View from "./view";
 
 export default function StuffCard({
   item,
@@ -15,6 +17,16 @@ export default function StuffCard({
   tagColors,
   setEditModal,
 }) {
+  const [openModal, setOpenModal] = useState(false);
+
+  function handleModalOpen(event) {
+    event.preventDefault();
+    setOpenModal(true);
+    console.log("clicked", openModal);
+  }
+  function handleModalClose() {
+    setOpenModal(false);
+  }
   return (
     <Card
       sx={{
@@ -26,6 +38,22 @@ export default function StuffCard({
         },
       }}
     >
+      <button onClick={(event) => handleModalOpen(event)}>View</button>
+      {openModal && (
+        <div>
+          <span className="close" onClick={handleModalClose}>
+            &times;
+          </span>
+          <View
+            tagColors={tagColors}
+            getContrastingColor={getContrastingColor}
+            item={item}
+            setEditModal={setEditModal}
+            handleModalClose={handleModalClose}
+            key={item.id}
+          />
+        </div>
+      )}
       <CardActions
         sx={{ display: "flex", justifyContent: "flex-end", padding: "0" }}
       >
