@@ -36,7 +36,7 @@ const buttonStyles = {
 
 Modal.setAppElement("#__next");
 
-function logButton({
+function LogButton({
   refreshData,
   isLoggedIn,
   setIsLoggedIn,
@@ -235,4 +235,4 @@ function logButton({
   );
 }
 
-export default logButton;
+export default LogButton;

@@ -1,14 +1,16 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import StuffCard from "../components/card";
-import Box from "@mui/material/Box";
+import { Box } from '@mui/material';
 import Header from "../components/header";
 import Filters from "../components/filters";
 import { getCookies, getCookie } from "cookies-next";
 import EditModal from "@/components/EditModal";
+import DeleteModal from "@/components/DeleteModal";
+import prisma from '../lib/prisma';
 const jwt = require("jsonwebtoken");
 import View from "@/components/View";
 
-function Home({ data, url, token, user }) {
+function Home({ data, token, user }) {
   const [items, setItems] = useState(data.items);
   const [filteredItems, setFilteredItems] = useState(items);
   const [isLoggedIn, setIsLoggedIn] = useState(!!token);
@@ -18,15 +20,16 @@ function Home({ data, url, token, user }) {
   const [username, setUsername] = useState(user.username);
   const [sortedItems, setSortedItems] = useState(filteredItems);
   const [sort, setSort] = useState(0);
-  const [sortMode, setSortMode] = useState("desc");
-  const [editModal, setEditModal] = useState(false);
+  const [sortMode, setSortMode] = useState('desc');
+  const [editModal, setEditModal] = useState(false)
+  const [deleteModal, setDeleteModal] = useState(false);
   const boxStyles = {
-    display: "flex",
-    flexWrap: "wrap",
-    gap: "10px",
-    justifyContent: "center",
-  };
-  const generateTagColors = () => {
+    display: 'flex',
+    flexWrap: 'wrap',
+    gap: '10px',
+    justifyContent: 'center'
+  }
+  const generateTagColors = useCallback(() => {
     const newColors = {};
     const samples = [
       { tag: "#bfd7ea", text: "#000" },
@@ -36,31 +39,29 @@ function Home({ data, url, token, user }) {
       { tag: "#004f2d", text: "#fff" },
     ];
     for (const tag of tags) {
-      if (tag.color === null)
-        newColors[tag.id] = samples[Math.floor(Math.random() * samples.length)];
+      if (!tag.color) newColors[tag.id] = samples[Math.floor(Math.random() * samples.length)];
     }
     return newColors;
-  };
+  }, [tags]);
   const [tagColors, setTagColors] = useState(generateTagColors());
+  useEffect(() => {
+    setTagColors(generateTagColors());
+  }, [tags, generateTagColors]);
   const refreshData = async () => {
     if (!getCookie("token")) {
       setItems([]);
       return;
     }
-    const itemsRes = await fetch(`http://${url}/api/item`, {
-      headers: { Cookie: getCookies() },
-    });
+    const itemsRes = await fetch('/api/item', { headers: { Cookie: getCookies() } });
     const data = {};
     data.items = itemsRes.ok ? await itemsRes.json() : [];
-    const tagsRes = await fetch(`http://${url}/api/tag`, {
-      headers: { Cookie: getCookies() },
-    });
+    const tagsRes = await fetch('/api/tag', { headers: { Cookie: getCookies() } });
     data.tags = tagsRes.ok ? await tagsRes.json() : [];
     setItems(data.items);
     setTags(data.tags);
-  };
-  const checkTag = (tag, filter = null) => {
-    for (const f of filter === null ? filters : [filter]) {
+  }
+  const checkTag = useCallback((tag, filter = null) => {
+    for (const f of (filter === null ? filters : [filter])) {
       if (f.id == tag.tagId) {
         if (f.value || f.value === 0) {
           return eval(tag.value + f.compType + f.value);
@@ -69,7 +70,7 @@ function Home({ data, url, token, user }) {
       }
     }
     return false;
-  };
+  }, [filters]);
   useEffect(() => {
     if (!filters.length) {
       setFilteredItems(items);
@@ -107,12 +108,8 @@ function Home({ data, url, token, user }) {
         if (ok) filtered.push(item);
       }
     setFilteredItems(filtered);
-  }, [items, filters, filterMode]);
+  }, [items, filters, filterMode, checkTag])
   useEffect(() => {
-    setTagColors(generateTagColors());
-  }, [tags]);
-  useEffect(() => {
-    console.log(sort, sortMode);
     const sorted = [...filteredItems];
     if (sort === 0) {
       if (sortMode === "desc") setSortedItems(sorted);
@@ -158,17 +155,11 @@ function Home({ data, url, token, user }) {
           setFilterMode={setFilterMode}
         />
       )}
-      <EditModal editModal={editModal} setEditModal={setEditModal} />
-
+      <EditModal setItems={setItems} items={items} setTags={setTags} tags={tags} tagColors={tagColors} editModal={editModal} setEditModal={setEditModal} getContrastingColor={getContrastingColor} />
+      <DeleteModal items={items} setItems={setItems} deleteModal={deleteModal} setDeleteModal={setDeleteModal} />
       <Box sx={boxStyles}>
-        {sortedItems.map((item) => (
-            <StuffCard
-              tagColors={tagColors}
-              getContrastingColor={getContrastingColor}
-              item={item}
-              setEditModal={setEditModal}
-              key={item.id}
-            />
+        {sortedItems.map(item => (
+          <StuffCard tagColors={tagColors} getContrastingColor={getContrastingColor} key={item.id} item={item} setEditModal={setEditModal} setDeleteModal={setDeleteModal} />
         ))}
       </Box>
     </>
@@ -188,40 +179,50 @@ function getContrastingColor(backgroundColor) {
 
 export async function getServerSideProps(context) {
   const { req } = context;
-  const url = `${process.env.HOST}${
-    process.env.PORT ? ":" + process.env.PORT : ""
-  }`;
   let user = { username: null, id: null };
-  if (!req.cookies.token)
-    return {
-      props: {
-        data: { items: [], tags: [] },
-        url,
-        token: null,
-        user,
-      },
-    };
-  const itemsRes = await fetch(`http://${url}/api/item`, {
-    headers: { Cookie: req.headers.cookie },
-  });
-  const data = {};
-  data.items = itemsRes.ok ? await itemsRes.json() : [];
-  const tagsRes = await fetch(`http://${url}/api/tag`, {
-    headers: { Cookie: req.headers.cookie },
-  });
-  data.tags = tagsRes.ok ? await tagsRes.json() : [];
-  jwt.verify(
-    req.cookies.token,
-    process.env.JWT_SECRET,
-    function (err, decoded) {
-      user = decoded;
-      delete user.iat;
+  if (!req.cookies.token) return {
+    props: {
+      data: { items: [], tags: [] },
+      token: null,
+      user
     }
-  );
+  };
+  const data = {};
+  await jwt.verify(req.cookies.token, process.env.JWT_SECRET, async function (err, decoded) {
+    if (!decoded.id) {
+      data.items = [];
+      data.tags = [];
+      return;
+    }
+    const items = await prisma.item.findMany({
+      where: {
+        userId: decoded.id
+      },
+      include: {
+        tags: {
+          include: {
+            Tag: true
+          }
+        }
+      },
+      orderBy: {
+        tags: {
+          _count: 'desc'
+        }
+      }
+    });
+    data.items = items;
+    const tags = await prisma.tag.findMany({
+      where: {
+        userId: decoded.id
+      }
+    });
+    data.tags = tags;
+    user = decoded;
+  });
   return {
     props: {
       data,
-      url,
       token: req.cookies.token,
       user,
     },

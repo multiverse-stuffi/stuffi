@@ -13,7 +13,7 @@ export default async function handler(req, res) {
         const itemId = Number(req.query.id);
         const tagId = Number(req.query.tagId);
 
-        if (req.cookies.token) jwt.verify(req.cookies.token, process.env.JWT_SECRET, async function (err, decoded) {
+        if (req.cookies.token) await jwt.verify(req.cookies.token, process.env.JWT_SECRET, async function (err, decoded) {
             try {
                 const db_itemTag = await prisma.itemTag.findFirst({
                     where: {
@@ -76,7 +76,7 @@ export default async function handler(req, res) {
         const itemId = Number(req.query.id);
         const tagId = Number(req.query.tagId);
 
-        if (req.cookies.token) jwt.verify(req.cookies.token, process.env.JWT_SECRET, async function (err, decoded) {
+        if (req.cookies.token) await jwt.verify(req.cookies.token, process.env.JWT_SECRET, async function (err, decoded) {
             try {
                 const db_itemTag = await prisma.itemTag.findFirst({
                     where: {
@@ -136,7 +136,7 @@ export default async function handler(req, res) {
         const itemId = Number(req.query.id);
         const tagId = Number(req.query.tagId);
 
-        if (req.cookies.token) jwt.verify(req.cookies.token, process.env.JWT_SECRET, async function (err, decoded) {
+        if (req.cookies.token) await jwt.verify(req.cookies.token, process.env.JWT_SECRET, async function (err, decoded) {
             try {
                 const db_itemTag = await prisma.itemTag.findFirst({
                     where: {
@@ -174,7 +174,7 @@ export default async function handler(req, res) {
         const itemId = Number(req.query.id);
         const tagId = Number(req.query.tagId);
 
-        if (req.cookies.token) jwt.verify(req.cookies.token, process.env.JWT_SECRET, async function (err, decoded) {
+        if (req.cookies.token) await jwt.verify(req.cookies.token, process.env.JWT_SECRET, async function (err, decoded) {
             try {
                 const db_itemTag = await prisma.itemTag.findFirst({
                     where: {

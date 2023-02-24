@@ -10,19 +10,20 @@ export default async function handler(req, res) {
         let imgUrl = req.body.imgUrl ? req.body.imgUrl.trim() : null;
         const description = req.body.description ? req.body.description.trim() : null;
         const url = req.body.url ? req.body.url.trim() : null;
+        const doGenerate = req.body.doGenerate;
 
         if (!item) {
             res.status(400).send('Name required');
             return;
         }
 
-        if (req.cookies.token) jwt.verify(req.cookies.token, process.env.JWT_SECRET, async function (err, decoded) {
+        if (req.cookies.token) await jwt.verify(req.cookies.token, process.env.JWT_SECRET, async function (err, decoded) {
             if (!decoded.id) {
                 res.status(403).send('Not Authorized');
                 return;
             }
 
-            if (!imgUrl) {
+            if (!imgUrl && doGenerate) {
                 try {
                     const config = new Configuration({
                         apiKey: process.env.OPENAI_KEY
@@ -34,15 +35,15 @@ export default async function handler(req, res) {
                         size: "512x512"
                     });
                     const s3 = new AWS.S3({
-                      accessKeyId: process.env.AWS_ACCESS_KEY,
-                      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+                      accessKeyId: process.env.AMZ_ACCESS_KEY,
+                      secretAccessKey: process.env.AMZ_SECRET_ACCESS_KEY,
                     });
 
                     const imgRes = await fetch(response.data.data[0].url);
                     const arrBuffer = await imgRes.arrayBuffer();
                     const buffer = Buffer.from(arrBuffer);
                     const uploadedImg = await s3.upload({
-                        Bucket: process.env.AWS_S3_BUCKET_NAME,
+                        Bucket: process.env.AMZ_S3_BUCKET_NAME,
                         Key: item+Date.now()+'.png',
                         Body: buffer
                     }).promise();
@@ -78,7 +79,7 @@ export default async function handler(req, res) {
         });
         else res.status(403).send('Not Authorized');
     } else if (req.method === 'GET') {
-        if (req.cookies.token) jwt.verify(req.cookies.token, process.env.JWT_SECRET, async function(err, decoded) {
+        if (req.cookies.token) await jwt.verify(req.cookies.token, process.env.JWT_SECRET, async function(err, decoded) {
             if (!decoded.id) {
                 res.status(403).send('Not Authorized');
                 return;

@@ -1,6 +1,6 @@
 import React from "react";
 import { useState } from "react";
-import Edit from "@mui/icons-material/Edit";
+import {Edit, Delete} from "@mui/icons-material";
 import { Link } from "@mui/icons-material";
 import Box from "@mui/material/Box";
 import CardMedia from "@mui/material/CardMedia";
@@ -16,6 +16,7 @@ export default function StuffCard({
   getContrastingColor,
   tagColors,
   setEditModal,
+  setDeleteModal,
 }) {
   const [openModal, setOpenModal] = useState(false);
 
@@ -70,6 +71,9 @@ export default function StuffCard({
           <IconButton aria-label="options" onClick={() => setEditModal(item)}>
             <Edit />
           </IconButton>
+          <IconButton aria-label="delete" onClick={() => setDeleteModal(item.id)}>
+            <Delete />
+          </IconButton>
         </Box>
       </CardActions>
       <CardMedia
@@ -89,7 +93,7 @@ export default function StuffCard({
           {item.item}
         </Typography>
         <Box sx={{ display: "flex", flexWrap: "wrap" }}>
-          {item.tags.slice(0, 5).map((tag) => {
+          {item.tags.map((tag) => {
             const tagStyle = tag.Tag.color
               ? {
                   tag: "#" + tag.Tag.color,
@@ -115,13 +119,6 @@ export default function StuffCard({
               </Typography>
             );
           })}
-          {item.tags.length > 5 ? (
-            <Typography sx={{ color: "#A9A9A9" }}>
-              {item.tags.length - 5} more...
-            </Typography>
-          ) : (
-            ""
-          )}
         </Box>
       </CardContent>
     </Card>
