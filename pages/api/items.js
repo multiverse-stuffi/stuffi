@@ -1,4 +1,5 @@
 import { getSession } from 'next-auth/react';
+import { prisma } from '@/lib/prisma';
 export default async function handler(req, res) {
   //check if user is authenticated
   const session = await getSession({ req });
@@ -15,16 +16,22 @@ export default async function handler(req, res) {
 
       const db_item = await prisma.item.create({
         data: {
-          item, imgUrl, description, url, doGenerate, userId: user.id,
+          item,
+          imgUrl,
+          description,
+          url,
+          doGenerate,
+          userId: user.id,
         },
       });
       res.status(200).json(db_item);
     } catch (error) {
       res.status(500).json({ message: 'Something went wrong.' });
-        }
+    }
   } else {
     res.setHeader('Allow', ['POST']);
-    res.status(405).json({message: `HTTP method ${req.method} not allowed.`})
+    res
+      .status(405)
+      .json({ message: `HTTP method ${req.method} not allowed.` });
   }
 }
-

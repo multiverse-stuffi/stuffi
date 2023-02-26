@@ -1,49 +1,111 @@
+import prisma from '@/lib/prisma';
 import { getSession } from 'next-auth/react';
-import { prisma } from '@/lib/prisma';
 
 export default async function handler(req, res) {
+  // make sure user is authenticated
   const session = await getSession({ req });
   if (!session) {
-    return res.status(401).json({ message: 'Unauthorized.' });
+    return res.status(401).json({ message: 'Unauthorized' });
   }
+  import prisma from '@/lib/prisma';
 
-  const user = await prisma.user.findUnique({
-    where: { email: session.user.email },
-    select: { listedItems: true },
-  });
+  if (req.method === 'PUT') {
+    // Handle PUT request
+    req.body = JSON.parse(req.body);
+    const item = req.body.item ? req.body.item.trim() : null;
+    let imgUrl = req.body.imgUrl ? req.body.imgUrl.trim() : null;
+    const description = req.body.description
+      ? req.body.description.trim()
+      : null;
+    const url = req.body.url ? req.body.url.trim() : null;
+    let id = 0;
 
-  const { id } = req.query;
-  if (!user?.listedItems?.find((item) => item.id === id)) {
-    return res.status(403).json({ message: 'Unauthorized.' });
-  }
-  // Update item
-  if (req.method === 'PATCH') {
-    try {
-      const item = await prisma.item.update({
-        where: { id },
-        data: req.body,
-      });
-      res.status(200).json(item);
-    } catch (e) {
-      res.status(500).json({ message: 'Something went wrong!' });
+    if (isNaN(req.query.id)) {
+      res.status(400).send('ID must be a number');
+      return;
+    } else id = Number(req.query.id);
+
+    if (!item) {
+      res.status(400).send('Name required');
+      return;
     }
-  }
-  //delete item
-  else if (req.method === 'DELETE') {
+
     try {
-      const item = await prisma.item.delete({
-        where: { id },
+      const db_item = await prisma.item.findUnique({
+        where: {
+          id,
+        },
       });
-      res.status(200).json(item);
+
+      const updated = await prisma.item.update({
+        data: {
+          item,
+          imgUrl,
+          description,
+          url,
+        },
+        where: {
+          id,
+        },
+      });
+      res.status(200).json(updated);
     } catch (e) {
-      res.status(500).json({ message: 'Something went wrong!' });
+      console.log(e);
+      res.status(500).send('Server Error');
     }
-  }
-  // HTTP method not supported!
-  else {
-    res.setHeader('Allow', ['PATCH', 'DELETE']);
-    res.status(405).json({
-      message: `HTTP method ${req.method} is not supported.`,
+  } else if (req.method === 'GET') {
+    // Handle GET request
+    let id = 0;
+
+    if (isNaN(req.query.id)) {
+      res.status(400).send('ID must be a number');
+      return;
+    } else id = Number(req.query.id);
+
+    const item = await prisma.item.findUnique({
+      where: {
+        id,
+      },
     });
+
+    if (!item) {
+      res.status(400).send('Invalid ID');
+      return;
+    }
+
+    res.status(200).json(item);
+  } else if (req.method === 'DELETE') {
+    // Handle DELETE request
+    if (isNaN(req.query.id) || !req.query.id) {
+      res.status(400).send('Invalid ID');
+      return;
+    }
+    const id = Number(req.query.id);
+
+    try {
+      const item = await prisma.item.findUnique({
+        where: {
+          id,
+        },
+      });
+
+      if (!item) {
+        res.status(400).send('Invalid ID');
+        return;
+      }
+
+      await prisma.item.delete({
+        where: {
+          id,
+        },
+      });
+
+      res.status(200).send('success');
+    } catch (e) {
+      console.log(e);
+      res.status(500).send('Server Error');
+    }
+  } else {
+    res.status(400).send('Bad Request');
   }
 }

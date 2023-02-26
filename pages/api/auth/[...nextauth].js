@@ -29,7 +29,9 @@ const sendVerificationRequest = ({ identifier, url }) => {
   );
   const emailTemplate = Handlebars.compile(emailFile);
   transporter.sendMail({
-    from: `'📌 Stuffi' ${proces.env.EMAIL_FROM}`,
+    from: `'📌 Stuffi' ${process.env.EMAIL_FROM}`,
+    to: identifier,
+    subject: 'Your sign-in link for Stuffi',
     html: emailTemplate({
       base_url: process.env.NEXTAUTH_URL,
       signin_url: url,

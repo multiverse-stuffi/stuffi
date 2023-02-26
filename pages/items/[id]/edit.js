@@ -41,7 +41,7 @@ const Edit = (item = null) => {
   const handleOnSubmit = (data) =>
     axios.patch(`/api/items/${item.id}`, data);
 
-  const ListedItem = (item= null) => {
+  const ListedItem = (item = null) => {
     const { data: session } = useSession();
     const [isOwner, setIsOwner] = useState(false);
 
@@ -64,7 +64,7 @@ const Edit = (item = null) => {
       <Layout>
         <div className='max-w-screen-sm mx-auto'>
           <h1 className='text-xl font-medium text-gray-800'>
-            Edit your home
+            Edit your stuff
           </h1>
           <p className='text-gray-500'>
             Fill out the form below to edit your stuff.

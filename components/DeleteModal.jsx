@@ -1,6 +1,5 @@
 import Modal from 'react-modal';
 import { Close } from '@mui/icons-material';
-import { getCookies } from 'cookies-next';
 import {
   Typography,
   TextField,

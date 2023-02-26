@@ -1,7 +1,7 @@
-import Layout from '@/components/Layout';
-import ListingForm from '@/components/ListingForm';
+import Header from '@/components/Header';
 import axios from 'axios';
 import { getSession } from 'next-auth/react';
+import EditModal from '@/components/EditModal';
 
 export async function getServerSideProps(context) {
   //check if user is authenticated
@@ -23,7 +23,8 @@ const Create = () => {
   const addItem = (data) => axios.post('/api/items', data);
 
   return (
-    <Layout>
+    <>
+      <Header />
       <div className='max-w-screen-sm mx-auto'>
         <h1 className='text-xl font-medium text-gray-800'>
           Add your stuff
@@ -32,14 +33,20 @@ const Create = () => {
           Fill out the form below to add new stuff.
         </p>
         <div className='mt-8'>
-          <ListingForm
-            onSubmit={addItem}
-            buttonText='Add stuff'
-            redirectPath='/'
+          <EditModal
+            addItem={addItem}
+            setItems={setItems}
+            items={items}
+            setTags={setTags}
+            tags={tags}
+            tagColors={tagColors}
+            editModal={editModal}
+            setEditModal={setEditModal}
+            getContrastingColor={getContrastingColor}
           />
         </div>
       </div>
-    </Layout>
+    </>
   );
 };
 
