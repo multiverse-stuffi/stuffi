@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useState } from 'react';
 import Modal from "react-modal";
 import { Close, Link } from "@mui/icons-material";
 import NextImage from "next/image";
@@ -29,7 +29,7 @@ function ViewModal({ viewModal, setViewModal, getContrastingColor, tagColors }) 
     function closeModal() {
         setViewModal(false);
     }
-    const ref = useRef(null);
+    const [titleWidth, setTitleWidth] = useState(0);
     return (
         <Modal
             isOpen={!!viewModal}
@@ -44,11 +44,11 @@ function ViewModal({ viewModal, setViewModal, getContrastingColor, tagColors }) 
             </div>
             <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px' }}>
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                    <Typography variant="h4" ref={ref} sx={{textAlign: 'center'}}>
+                    <Typography variant="h4" ref={(node) => {setTitleWidth(node?.offsetWidth/2)}} sx={{textAlign: 'center'}}>
                         {viewModal?.item}
                     </Typography>
                     {viewModal?.url && (
-                        <Box sx={{position: 'absolute', left: `calc(50% + ${ref.current?.offsetWidth/2}px)`}}>
+                        <Box sx={{position: 'absolute', left: `calc(50% + ${titleWidth}px)`}}>
                             <a target="_blank" rel="noreferrer" href={viewModal.url}>
                                 <IconButton>
                                     <Link sx={{ height: '40px', width: '40px' }} />
