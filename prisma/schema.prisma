@@ -3,23 +3,65 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlserver"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+model Account {
+  id                 Int     @id @default(autoincrement())
+  userId             Int
+  type               String
+  provider           String
+  providerAccountId  String
+  refresh_token      String? @db.Text
+  access_token       String? @db.Text
+  expires_at         Int?
+  token_type         String?
+  scope              String?
+  id_token           String? @db.Text
+  session_state      String?
+  oauth_token_secret String?
+  oauth_token        String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           Int      @id @default(autoincrement())
+  sessionToken String   @unique
+  userId       Int
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
 }
 
 model Item {
   id          Int       @id(map: "PK__Item__3213E83F08ABBE67") @default(autoincrement())
-  item        String    @db.NVarChar(255)
+  item        String    @db.VarChar(255)
   imgUrl      String?   @db.VarChar(510)
-  description String?   @db.NVarChar(510)
+  description String?   @db.VarChar(510)
   url         String?   @db.VarChar(510)
   userId      Int
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  owner       User      @relation("listedItems", fields: [ownerId], references: [id])
+  ownerId     Int
+  favoritedBy User[]    @relation("favoriteItems")
   User        User      @relation(fields: [userId], references: [id], onUpdate: NoAction, map: "FK__Item__userId__60A75C0F")
   tags        ItemTag[]
 }
 
 model ItemTag {
-  id     Int   @id(map: "PK__ItemTag__3213E83F6FCAE958") @default(autoincrement())
+  id     Int  @id(map: "PK__ItemTag__3213E83F6FCAE958") @default(autoincrement())
   itemId Int
   tagId  Int
   value  Int?
@@ -29,8 +71,8 @@ model ItemTag {
 
 model Tag {
   id         Int       @id(map: "PK__Tag__3213E83FB8393F8C") @default(autoincrement())
-  tag        String    @db.NVarChar(255)
-  isVariable Boolean   @default(false, map: "DF__Tag__isVariable__5BE2A6F2")
+  tag        String    @db.VarChar(255)
+  isVariable Boolean   @default(false)
   color      String?   @db.Char(6)
   userId     Int
   ItemTag    ItemTag[]
@@ -38,9 +80,16 @@ model Tag {
 }
 
 model User {
-  id       Int     @id(map: "PK__User__3213E83FCDEEF82E") @default(autoincrement())
-  username String  @unique(map: "UQ__User__F3DBC572D9BCE399") @db.VarChar(255)
-  password String? @db.VarChar(255)
-  Item     Item[]
-  Tag      Tag[]
+  id            Int       @id(map: "PK__User__3213E83FCDEEF82E") @default(autoincrement())
+  username      String    @unique(map: "UQ__User__F3DBC572D9BCE399") @db.VarChar(255)
+  password      String?   @db.VarChar(255)
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  accounts      Account[]
+  sessions      Session[]
+  listedItems   Item[]    @relation("listedItems")
+  favoriteItems Item[]    @relation("favoriteItems")
+  Tag           Tag[]
+  Item          Item[]
 }
