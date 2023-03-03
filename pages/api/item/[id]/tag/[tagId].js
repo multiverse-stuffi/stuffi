@@ -1,7 +1,8 @@
-const jwt = require('jsonwebtoken');
-import prisma from '../../../../../lib/prisma';
+import jwt from 'jsonwebtoken';
+import prisma from '@/lib/prisma';
 
 export default async function handler(req, res) {
+
     if (req.method === 'POST') {
         req.body = JSON.parse(req.body);
         const value = isNaN(req.body.value) ? null : Number(req.body.value);
