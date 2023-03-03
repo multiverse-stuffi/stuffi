@@ -11,16 +11,22 @@ import { getSession } from 'next-auth/react';
 export async function getServerSideProps(context) {
   //check if user is authenticated
   const session = await getSession(context);
-  if (!session) {
+  /* if (!session) {
     return {
       redirect: {
         destination: '/',
         permanent: false,
       },
     };
-  }
-  return {
-    props: {},
+  } */
+  let user = {username: null, id: null};
+  if (!session) return {
+    props: {
+      data: { items: [], tags: [] },
+      token: null,
+      user,
+      session: null,
+    }
   };
 
   const items = await prisma.item.findMany({
@@ -51,7 +57,7 @@ export async function getServerSideProps(context) {
   };
 }
 
-function Home({ data, token, user }) {
+function Home({ data, token, user, session }) {
   const [items, setItems] = useState(data.items);
   const [filteredItems, setFilteredItems] = useState(items);
   const [isLoggedIn, setIsLoggedIn] = useState(!!token);
