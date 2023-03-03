@@ -15,6 +15,7 @@ export default function StuffCard({
   tagColors,
   setEditModal,
   setDeleteModal,
+  setViewModal,
 }) {
   return (
     <Card
@@ -55,8 +56,9 @@ export default function StuffCard({
         image={item.imgUrl ?? "/thumbtack.png"}
         alt={item.item}
         sx={{ objectFit: "cover" }}
+        onClick={() => {setViewModal(item);}}
       />
-      <CardContent className="card-title">
+      <CardContent className="card-title" onClick={() => {setViewModal(item);}}>
         <Typography
           variant="h6"
           color="text.secondary"
