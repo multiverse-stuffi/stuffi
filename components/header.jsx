@@ -28,7 +28,7 @@ function Header({username, setUsername, userId, refreshData, isLoggedIn, setIsLo
           <Image src="/thumbtack.png" width={50} height={50} alt="logo"/>
           <Typography variant="h4">Stuffi</Typography>
           </Box>
-          {isLoggedIn && <Typography sx={{'@media(max-width: 780px)': {display: 'none'}}} variant="h5">Welcome, {username}!</Typography>}
+          {isLoggedIn && <Typography sx={{position: 'absolute', left: '50%', transform: 'translateX(-50%)', '@media(max-width: 780px)': {display: 'none'}}} variant="h5">Welcome, {username}!</Typography>}
           <Box>
             {isLoggedIn && <ChangePassword userId={userId}/>}
             <LogButton setHeaderUsername={setUsername} refreshData={refreshData} isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn}/>

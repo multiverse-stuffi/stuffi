@@ -1,5 +1,6 @@
+import { useRef } from 'react';
 import Modal from "react-modal";
-import { Close } from "@mui/icons-material";
+import { Close, Link } from "@mui/icons-material";
 import NextImage from "next/image";
 import {
     Typography,
@@ -28,6 +29,7 @@ function ViewModal({ viewModal, setViewModal, getContrastingColor, tagColors }) 
     function closeModal() {
         setViewModal(false);
     }
+    const ref = useRef(null);
     return (
         <Modal
             isOpen={!!viewModal}
@@ -41,14 +43,26 @@ function ViewModal({ viewModal, setViewModal, getContrastingColor, tagColors }) 
                 </IconButton>
             </div>
             <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px' }}>
-                <Typography variant="h4" sx={{ ml: '10px' }}>
-                    {viewModal?.item}
-                </Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    <Typography variant="h4" ref={ref} sx={{textAlign: 'center'}}>
+                        {viewModal?.item}
+                    </Typography>
+                    {viewModal?.url && (
+                        <Box sx={{position: 'absolute', left: `calc(50% + ${ref.current?.offsetWidth/2}px)`}}>
+                            <a target="_blank" rel="noreferrer" href={viewModal.url}>
+                                <IconButton>
+                                    <Link sx={{ height: '40px', width: '40px' }} />
+                                </IconButton>
+                            </a>
+                        </Box>
+                    )}
+                </Box>
                 {viewModal?.imgUrl && <NextImage
                     width={512}
                     height={512}
                     src={viewModal.imgUrl}
                     alt="Image"
+                    style={{ objectFit: 'cover' }}
                 />}
                 <Typography variant="h6">{viewModal?.description}</Typography>
                 <Box sx={{ display: "flex", flexWrap: "wrap" }}>
