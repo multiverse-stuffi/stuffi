@@ -7,6 +7,7 @@ import { getCookies, getCookie } from 'cookies-next';
 import EditModal from "@/components/EditModal";
 import DeleteModal from "@/components/DeleteModal";
 import ViewModal from "@/components/ViewModal";
+import Welcome from "@/components/Welcome";
 import prisma from '../lib/prisma';
 const jwt = require('jsonwebtoken');
 
@@ -129,10 +130,13 @@ function Home({ data, token, user }) {
   return (
     <>
       <Header username={username} setUsername={setUsername} userId={user.id} refreshData={refreshData} setEditModal={setEditModal} isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />
-      {isLoggedIn && <Filters setEditModal={setEditModal} sort={sort} setSort={setSort} sortMode={sortMode} setSortMode={setSortMode} tagColors={tagColors} tags={tags} getContrastingColor={getContrastingColor} filters={filters} setFilters={setFilters} filterMode={filterMode} setFilterMode={setFilterMode} />}
+      {isLoggedIn
+        ? <Filters setEditModal={setEditModal} sort={sort} setSort={setSort} sortMode={sortMode} setSortMode={setSortMode} tagColors={tagColors} tags={tags} getContrastingColor={getContrastingColor} filters={filters} setFilters={setFilters} filterMode={filterMode} setFilterMode={setFilterMode} />
+        : <Welcome />
+      }
       <EditModal setItems={setItems} items={items} setTags={setTags} tags={tags} tagColors={tagColors} editModal={editModal} setEditModal={setEditModal} getContrastingColor={getContrastingColor} />
       <DeleteModal items={items} setItems={setItems} deleteModal={deleteModal} setDeleteModal={setDeleteModal} />
-      <ViewModal getContrastingColor={getContrastingColor} tagColors={tagColors} viewModal={viewModal} setViewModal={setViewModal}/>
+      <ViewModal getContrastingColor={getContrastingColor} tagColors={tagColors} viewModal={viewModal} setViewModal={setViewModal} />
       <Box sx={boxStyles}>
         {sortedItems.map(item => (
           <StuffCard setViewModal={setViewModal} tagColors={tagColors} getContrastingColor={getContrastingColor} key={item.id} item={item} setEditModal={setEditModal} setDeleteModal={setDeleteModal} />
