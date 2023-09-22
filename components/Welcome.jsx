@@ -22,13 +22,13 @@ export default function Welcome() {
                 color="text.primary"
                 sx={{ textAlign: "center", mt: '2em' }}
             >
-                Once logged in, you'll be able to organize, sort, and filter ideas.<br/>
+                Once logged in, you&apos;ll be able to organize, sort, and filter ideas.<br/>
             </Typography>
             <Typography
                 color="text.primary"
                 sx={{ textAlign: "center", mt: '.5em' }}
             >
-                <b>Looking for a new car?</b> Add the ones you're considering, tag them with your favorite features and key details, and compare them side-by-side! <br/>
+                <b>Looking for a new car?</b> Add the ones you&apos;re considering, tag them with your favorite features and key details, and compare them side-by-side! <br/>
             </Typography>
             <Typography
                 color="text.primary"
