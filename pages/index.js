@@ -5,10 +5,13 @@ import Header from "../components/header";
 import Filters from "../components/filters";
 import { getCookies, getCookie } from 'cookies-next';
 import EditModal from "@/components/EditModal";
+import DeleteModal from "@/components/DeleteModal";
+import ViewModal from "@/components/ViewModal";
+import Welcome from "@/components/Welcome";
 import prisma from '../lib/prisma';
 const jwt = require('jsonwebtoken');
 
-function Home({ data, url, token, user }) {
+function Home({ data, token, user }) {
   const [items, setItems] = useState(data.items);
   const [filteredItems, setFilteredItems] = useState(items);
   const [isLoggedIn, setIsLoggedIn] = useState(!!token);
@@ -20,6 +23,8 @@ function Home({ data, url, token, user }) {
   const [sort, setSort] = useState(0);
   const [sortMode, setSortMode] = useState('desc');
   const [editModal, setEditModal] = useState(false)
+  const [deleteModal, setDeleteModal] = useState(false);
+  const [viewModal, setViewModal] = useState(false);
   const boxStyles = {
     display: 'flex',
     flexWrap: 'wrap',
@@ -125,11 +130,16 @@ function Home({ data, url, token, user }) {
   return (
     <>
       <Header username={username} setUsername={setUsername} userId={user.id} refreshData={refreshData} setEditModal={setEditModal} isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />
-      {isLoggedIn && <Filters setEditModal={setEditModal} sort={sort} setSort={setSort} sortMode={sortMode} setSortMode={setSortMode} tagColors={tagColors} tags={tags} getContrastingColor={getContrastingColor} filters={filters} setFilters={setFilters} filterMode={filterMode} setFilterMode={setFilterMode} />}
+      {isLoggedIn
+        ? <Filters setEditModal={setEditModal} sort={sort} setSort={setSort} sortMode={sortMode} setSortMode={setSortMode} tagColors={tagColors} tags={tags} getContrastingColor={getContrastingColor} filters={filters} setFilters={setFilters} filterMode={filterMode} setFilterMode={setFilterMode} />
+        : <Welcome />
+      }
       <EditModal setItems={setItems} items={items} setTags={setTags} tags={tags} tagColors={tagColors} editModal={editModal} setEditModal={setEditModal} getContrastingColor={getContrastingColor} />
+      <DeleteModal items={items} setItems={setItems} deleteModal={deleteModal} setDeleteModal={setDeleteModal} />
+      <ViewModal getContrastingColor={getContrastingColor} tagColors={tagColors} viewModal={viewModal} setViewModal={setViewModal} />
       <Box sx={boxStyles}>
         {sortedItems.map(item => (
-          <StuffCard tagColors={tagColors} getContrastingColor={getContrastingColor} key={item.id} item={item} setEditModal={setEditModal} />
+          <StuffCard setViewModal={setViewModal} tagColors={tagColors} getContrastingColor={getContrastingColor} key={item.id} item={item} setEditModal={setEditModal} setDeleteModal={setDeleteModal} />
         ))}
       </Box>
     </>
@@ -150,12 +160,10 @@ function getContrastingColor(backgroundColor) {
 export async function getServerSideProps(context) {
   console.log(process.env, process.env.JWT_SECRET);
   const { req } = context;
-  const url = `${process.env.HOST}${process.env.PORT ? ':' + process.env.PORT : ''}`;
   let user = { username: null, id: null };
   if (!req.cookies.token) return {
     props: {
       data: { items: [], tags: [] },
-      url,
       token: null,
       user
     }
@@ -196,7 +204,6 @@ export async function getServerSideProps(context) {
   return {
     props: {
       data,
-      url,
       token: req.cookies.token,
       user
     }

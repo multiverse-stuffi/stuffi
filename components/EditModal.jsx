@@ -18,9 +18,6 @@ import {
 } from "@mui/material";
 
 const customStyles = {
-  overlay: {
-    overflowY: 'auto'
-  },
   content: {
     top: "50%",
     left: "50%",
@@ -29,7 +26,8 @@ const customStyles = {
     marginRight: "-50%",
     transform: "translate(-50%, -50%)",
     padding: "10px",
-    maxWidth: '80%',
+    maxWidth: '90%',
+    maxHeight: '90%',
   },
 };
 
@@ -65,24 +63,23 @@ function EditModal({ editModal, setEditModal, tagColors, tags, getContrastingCol
   const [imgError, setImgError] = useState(false);
   const [tagError, setTagError] = useState(false);
   const [colorError, setColorError] = useState(false);
-  const resetInitialVals = useCallback(() => {
-    for (const tag of modalTags) {
-      delete tag.initialVal;
-    }
-  }, [modalTags]);
+  const [urlError, setUrlError] = useState(false);
+  const [descriptionError, setDescriptionError] = useState(false);
+  const [doGenerate, setDoGenerate] = useState(false);
   useEffect(() => {
     setItem(editModal ? editModal.item : '');
     setDescription(editModal ? editModal.description : '');
     setUrl(editModal ? editModal.url : '');
     setImgUrl(editModal ? editModal.imgUrl : '');
     setAllowPreview(editModal && editModal.imgUrl ? true : false);
-    setItemTags(editModal ? editModal.tags : []);
     setIsNew(editModal ? !editModal.id : null)
     setItemError(false);
     setImgError(false);
+    setUrlError(false);
+    setDescriptionError(false);
+    setDoGenerate(false);
     document.body.style.overflow = editModal ? 'hidden' : 'unset';
-    resetInitialVals();
-  }, [editModal, resetInitialVals])
+  }, [editModal])
   const refs = useRef({});
   function createTagRefs() {
     const newRefs = { ...refs.current };
@@ -98,6 +95,7 @@ function EditModal({ editModal, setEditModal, tagColors, tags, getContrastingCol
   useEffect(createTagRefs, [modalTags]);
   useEffect(() => { if (!allowPreview) setShowPreview(false); }, [allowPreview]);
   useEffect(() => { setModalTags(tags); }, [tags, editModal]);
+  useEffect(() => { setItemTags(editModal ? [...editModal.tags] : []); }, [editModal]);
   function closeModal() {
     setEditModal(false);
   }
@@ -110,9 +108,8 @@ function EditModal({ editModal, setEditModal, tagColors, tags, getContrastingCol
   const handleTag = (tagId) => {
     let newTags = [...itemTags]; // Copy what we currently have
     let done = false;
-    let Tag;
+    const Tag = modalTags.filter(tag => tag.id === tagId)[0];
     for (let i = 0; i < newTags.length; i++) { // Loop through our copy
-      Tag = modalTags.filter(tag => tag.id === tagId)[0];
       if (newTags[i].tagId !== tagId) continue; // Skip it if it is not the tag we just modified
       if (refs.current[tagId].check.current.checked) {
         newTags[i] = { // If we get here, that means we found the tag we just changed. If the box is checked, let's update it to reflect the current values we entered (checkbox, number field)
@@ -132,7 +129,6 @@ function EditModal({ editModal, setEditModal, tagColors, tags, getContrastingCol
         Tag
       });
     }
-    if (!Tag.hasOwnProperty('initialVal')) Tag.initialVal = !refs.current[tagId].check.current.checked;
     setItemTags(newTags); // Update state with new array
   };
   const openTagModal = () => {
@@ -157,26 +153,42 @@ function EditModal({ editModal, setEditModal, tagColors, tags, getContrastingCol
     }
     const newTags = [...modalTags];
     const newItemTags = [...itemTags];
-    const Tag = { id: 0, tag: tagName, color: tagColor, isVariable: tagVariable, initialVal: false };
+    const Tag = { id: 0, tag: tagName, color: tagColor, isVariable: tagVariable };
     newTags.push(Tag);
     newItemTags.push({ tagId: 0, value: tagVariable ? 1 : null, Tag })
-    setModalTags(newTags);
     setItemTags(newItemTags);
+    setModalTags(newTags);
     closeTagModal();
   }
   const submitHandler = async () => {
     if (!item.trim()) {
-      setItemError(true);
+      setItemError('Title required');
       return;
     }
-    if (imgUrl.trim() && !allowPreview) {
-      setImgError(true);
+    if (item.trim().length > 255) {
+      setItemError('Maximum length is 255 characters');
+      return;
+    }
+    if (description && description.trim().length > 510) {
+      setDescriptionError(true);
+      return;
+    }
+    if (url && url.trim().length > 510) {
+      setUrlError(true);
+      return;
+    }
+    if (imgUrl && imgUrl.trim() && !allowPreview) {
+      setImgError('Invalid image url');
+      return;
+    }
+    if (imgUrl && imgUrl.trim().length > 510) {
+      setImgError('Maximum url length is 510 characters. Try using a url shortener.');
       return;
     }
     const Cookie = getCookies();
     const itemRes = await fetch(`/api/item/${isNew ? '' : editModal.id}`, {
       method: isNew ? "POST" : "PUT",
-      body: JSON.stringify({ item, description, url, imgUrl }),
+      body: JSON.stringify({ item, description, url, imgUrl, doGenerate }),
       headers: { Cookie }
     });
     let dbItem;
@@ -204,10 +216,11 @@ function EditModal({ editModal, setEditModal, tagColors, tags, getContrastingCol
       }
     }
     for (const tag of modalTags) {
-      const add = itemTags.some(i => i.tagId == tag.id);
-      if (!tag.hasOwnProperty('initialVal') || tag.initialVal === add) continue;
+      const add = itemTags.filter(i => i.tagId == tag.id)[0];
+      const originalTag = editModal.tags.filter(i => i.tagId == tag.id)[0];
+      if (!!originalTag === !!add && add?.value === originalTag?.value) continue;
       await fetch(`/api/item/${editModal.id}/tag/${tag.id}`, {
-        method: add ? "POST" : "DELETE",
+        method: add ? (originalTag ? "PUT" : "POST") : "DELETE",
         body: JSON.stringify(add ? { value: itemTags.filter(i => i.tagId == tag.id)[0].value } : {}),
         headers: { Cookie }
       });
@@ -289,7 +302,7 @@ function EditModal({ editModal, setEditModal, tagColors, tags, getContrastingCol
               setItem(e.target.value);
             }}
             error={itemError}
-            helperText={itemError ? 'Title required' : null}
+            helperText={itemError ? itemError : null}
           />
           <TextField
             label="Description"
@@ -297,15 +310,21 @@ function EditModal({ editModal, setEditModal, tagColors, tags, getContrastingCol
             multiline
             minRows={2}
             onChange={(e) => {
+              setDescriptionError(false);
               setDescription(e.target.value);
             }}
+            error={descriptionError}
+            helperText={descriptionError ? 'Maximum length is 510 characters' : null}
           />
           <TextField
             label="Link"
             value={url}
             onChange={(e) => {
+              setUrlError(false);
               setUrl(e.target.value);
             }}
+            error={urlError}
+            helperText={urlError ? 'Maximum length is 510 characters. Try a using a url shortener.' : null}
           />
           <TextField
             label="Image Link"
@@ -318,8 +337,14 @@ function EditModal({ editModal, setEditModal, tagColors, tags, getContrastingCol
               } else setAllowPreview(false);
             }}
             error={imgError}
-            helperText={imgError ? 'Invalid image url' : null}
+            helperText={imgError ? imgError : null}
           />
+          {isNew && !imgUrl.trim() && (
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <Checkbox checked={doGenerate} onChange={(e) => { setDoGenerate(e.target.checked) }} sx={{ width: 'fit-content' }} />
+              <FormLabel>Generate image from description or title</FormLabel>
+            </Box>
+          )}
         </Box>
         {allowPreview && (
           <Typography
@@ -352,15 +377,15 @@ function EditModal({ editModal, setEditModal, tagColors, tags, getContrastingCol
           />
         </Modal>
         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-          <List sx={{ py: 1, display: 'flex', flexDirection: 'row', gap: '20px', flexWrap: 'wrap' }}>
+          <List sx={{ py: 1, display: 'flex', flexDirection: 'row', gap: '5px 20px', flexWrap: 'wrap' }}>
             {modalTags.map((tag) => {
               const tagStyle =
                 tag.color ? { tag: '#' + tag.color, text: getContrastingColor(tag.color) }
                   : (tagColors[tag.id] ?? { tag: '#0A8754', text: '#fff' });
               return (
-                <ListItem key={tag.id} disablePadding sx={{ width: 'min-content' }}>
+                <ListItem key={tag.id ? tag.id : tag.tag} disablePadding sx={{ width: 'min-content' }}>
                   <Checkbox
-                    checked={itemTags.some(i => i.tagId == tag.id)}
+                    checked={itemTags.some(i => tag.id > 0 ? i.tagId == tag.id : tag.tag === i.Tag.tag && i.tagId == 0)}
                     onChange={() => { handleTag(tag.id); }}
                     value={tag.id}
                     inputProps={{ ref: refs.current[tag.id].check }}
@@ -394,7 +419,7 @@ function EditModal({ editModal, setEditModal, tagColors, tags, getContrastingCol
                           },
                         }}
                         onChange={() => { handleTag(tag.id) }}
-                        value={itemTags.filter(i => i.tagId == tag.id)[0]?.value}
+                        value={itemTags.filter(i => tag.id > 0 ? i.tagId == tag.id : i.Tag.tag == tag.tag)[0]?.value}
                         inputProps={{
                           ref: refs.current[tag.id].val
                         }}

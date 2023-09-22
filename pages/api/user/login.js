@@ -18,7 +18,9 @@ export default async function handler(req, res) {
                     delete user.password;
                     console.log(process.env, process.env.JWT_SECRET);
                     const token = await jwt.sign(user, process.env.JWT_SECRET);
-                    res.status(200).setHeader("Set-Cookie", `token=${token}; Path=/`).json(user);
+                    const date = new Date();
+                    date.setFullYear(date.getFullYear() + 1);
+                    res.status(200).setHeader("Set-Cookie", `token=${token}; Path=/; Expires=${date.toUTCString()}`).json(user);
                 } else res.status(400).send('No user found with this username/password combination');
             });
         } else res.status(400).send('No user found with this username/password combination');

@@ -1,5 +1,5 @@
 import React from "react";
-import Edit from "@mui/icons-material/Edit";
+import {Edit, Delete} from "@mui/icons-material";
 import { Link } from "@mui/icons-material";
 import Box from "@mui/material/Box";
 import CardMedia from "@mui/material/CardMedia";
@@ -14,6 +14,8 @@ export default function StuffCard({
   getContrastingColor,
   tagColors,
   setEditModal,
+  setDeleteModal,
+  setViewModal,
 }) {
   return (
     <Card
@@ -42,6 +44,9 @@ export default function StuffCard({
           <IconButton aria-label="options" onClick={() => setEditModal(item)}>
             <Edit />
           </IconButton>
+          <IconButton aria-label="delete" onClick={() => setDeleteModal(item.id)}>
+            <Delete />
+          </IconButton>
         </Box>
       </CardActions>
       <CardMedia
@@ -51,8 +56,9 @@ export default function StuffCard({
         image={item.imgUrl ?? "/thumbtack.png"}
         alt={item.item}
         sx={{ objectFit: "cover" }}
+        onClick={() => {setViewModal(item);}}
       />
-      <CardContent className="card-title">
+      <CardContent className="card-title" onClick={() => {setViewModal(item);}}>
         <Typography
           variant="h6"
           color="text.secondary"

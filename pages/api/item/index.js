@@ -10,6 +10,7 @@ export default async function handler(req, res) {
         let imgUrl = req.body.imgUrl ? req.body.imgUrl.trim() : null;
         const description = req.body.description ? req.body.description.trim() : null;
         const url = req.body.url ? req.body.url.trim() : null;
+        const doGenerate = req.body.doGenerate;
 
         if (!item) {
             res.status(400).send('Name required');
@@ -22,7 +23,7 @@ export default async function handler(req, res) {
                 return;
             }
 
-            if (!imgUrl) {
+            if (!imgUrl && doGenerate) {
                 try {
                     const config = new Configuration({
                         apiKey: process.env.OPENAI_KEY
