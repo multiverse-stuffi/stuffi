@@ -48,6 +48,18 @@ export default function Welcome() {
             >
                 <b>Have a lot of ideas for your next home improvement project?</b> Add them to Stuffi, tag them by room and price, and filter by what you want to do next! <br/>
             </Typography>
+            <Typography
+                color="text.primary"
+                sx={{ textAlign: "center", mt: '.5em' }}
+            >
+                Developed by Anabel and Reese
+            </Typography>
+            <Typography
+                color="text.primary"
+                sx={{ textAlign: "center", mt: '.5em' }}
+            >
+                Currently offline to save on database costs.
+            </Typography>
         </>
     )
 }
